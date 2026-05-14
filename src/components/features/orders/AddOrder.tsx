@@ -39,27 +39,18 @@ interface AddOrderProps {
   onOrderChange: () => void;
 }
 
-export default function AddOrder({
-  products,
-  suppliers,
-  onOrderChange,
-}: AddOrderProps) {
+export default function AddOrder({ products, suppliers, onOrderChange }: AddOrderProps) {
   const [showForm, setShowForm] = useState(false);
-  const [state, formAction, isPending] = useActionState(
-    insertOrder,
-    initialState
-  );
+  const [state, formAction, isPending] = useActionState(insertOrder, initialState);
   const formRef = useRef<HTMLFormElement>(null);
   const [items, setItems] = useState<OrderItem[]>([]);
-  const [currentItem, setCurrentItem] =
-    useState<OrderItemState>(initialItemState);
-  const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(
-    null
-  );
+  const [currentItem, setCurrentItem] = useState<OrderItemState>(initialItemState);
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string | null>(null);
   const [expectedDeliveryDate, setExpectedDeliveryDate] = useState("");
   const [orderStatus, setOrderStatus] = useState("");
   const processedStateRef = useRef(initialState);
   const [itemFormKey, setItemFormKey] = useState(0);
+
   const supplierOptions = suppliers.map((s) => ({
     id: s.id,
     main_text: s.supplier_name,
@@ -68,7 +59,6 @@ export default function AddOrder({
 
   const productOptions = useMemo(() => {
     if (!selectedSupplierId) return [];
-    console.log(selectedSupplierId);
     return products
       .filter((p) => String(p.supplier_id) === String(selectedSupplierId))
       .map((p) => ({
@@ -79,8 +69,7 @@ export default function AddOrder({
   }, [products, selectedSupplierId]);
 
   const isHeaderLocked = items.length > 0;
-  const isItemFormDisabled =
-    !selectedSupplierId || !expectedDeliveryDate || !orderStatus;
+  const isItemFormDisabled = !selectedSupplierId || !expectedDeliveryDate || !orderStatus;
 
   const handleDiscard = useCallback(() => {
     formRef.current?.reset();
@@ -92,6 +81,7 @@ export default function AddOrder({
     setShowForm(false);
     setItemFormKey((prevKey) => prevKey + 1);
   }, []);
+
   useEffect(() => {
     if (state !== processedStateRef.current && state.message) {
       alert(state.message);
@@ -123,11 +113,11 @@ export default function AddOrder({
     const costNum = parseFloat(currentItem.cost_per_item);
 
     if (!currentItem.product_id || isNaN(quantityNum) || quantityNum <= 0) {
-      alert("Please select a product and enter a valid quantity.");
+      alert("กรุณาเลือกวัสดุและกรอกจำนวนให้ถูกต้อง");
       return;
     }
     if (isNaN(costNum) || costNum < 0) {
-      alert("Please enter a valid cost per item.");
+      alert("กรุณากรอกต้นทุนต่อหน่วยให้ถูกต้อง");
       return;
     }
 
@@ -141,7 +131,6 @@ export default function AddOrder({
       },
     ]);
     setCurrentItem(initialItemState);
-
     setItemFormKey((prevKey) => prevKey + 1);
   };
 
@@ -151,169 +140,108 @@ export default function AddOrder({
 
   return (
     <>
-      <Button
-        onClick={() => setShowForm(true)}
-        className="flex items-center text-xs sm:text-base"
-      >
-        Add Order
+      <Button onClick={() => setShowForm(true)} className="flex items-center text-xs sm:text-base">
+        เพิ่มรายการรับเข้า
       </Button>
       <Modal
         isOpen={showForm}
         onClose={handleDiscard}
-        title="New Purchase Order"
+        title="เพิ่มใบสั่งซื้อ/รับเข้า"
         footer={
           <>
             <Button type="button" variant="secondary" onClick={handleDiscard}>
-              Discard
+              ยกเลิก
             </Button>
-            <Button
-              type="submit"
-              form="order-form"
-              disabled={isPending || items.length === 0}
-            >
-              {isPending
-                ? "Saving..."
-                : items.length === 0
-                ? "Add items to save"
-                : "Save Order"}
+            <Button type="submit" form="order-form" disabled={isPending || items.length === 0}>
+              {isPending ? "กำลังบันทึก..." : items.length === 0 ? "เพิ่มรายการก่อนบันทึก" : "บันทึกใบสั่งซื้อ"}
             </Button>
           </>
         }
       >
-        <form
-          id="order-form"
-          ref={formRef}
-          action={formAction}
-          className="flex flex-col gap-5"
-        >
+        <form id="order-form" ref={formRef} action={formAction} className="flex flex-col gap-5">
           <input type="hidden" name="items" value={JSON.stringify(items)} />
           <SearchableSelect
-            label="Supplier"
+            label="ผู้จำหน่าย"
             name="supplier_id"
             options={supplierOptions}
             onSelect={setSelectedSupplierId}
             value={selectedSupplierId}
             disabled={isHeaderLocked}
-            placeholder="Search Supplier..."
+            placeholder="ค้นหาผู้จำหน่าย..."
             required
           />
           <LabeledInput
-            label="Expected Delivery"
+            label="วันที่คาดว่าจะรับเข้า"
             id="expected_delivery_date"
             name="expected_delivery_date"
             type="date"
             value={expectedDeliveryDate}
             readOnly={isHeaderLocked}
             onChange={(e) => setExpectedDeliveryDate(e.target.value)}
-            className={
-              isHeaderLocked
-                ? "bg-gray-100 text-gray-500 cursor-not-allowed"
-                : ""
-            }
+            className={isHeaderLocked ? "bg-gray-100 text-gray-500 cursor-not-allowed" : ""}
             required
           />
           <LabeledSelect
-            label="Order Status"
+            label="สถานะรายการ"
             id="status"
             name="status"
             value={orderStatus}
             onChange={(e) => setOrderStatus(e.target.value)}
-            className={
-              isHeaderLocked
-                ? "bg-gray-100 text-gray-500 cursor-not-allowed pointer-events-none"
-                : ""
-            }
+            className={isHeaderLocked ? "bg-gray-100 text-gray-500 cursor-not-allowed pointer-events-none" : ""}
             required
           >
-            <option value="" disabled>
-              Select order status
-            </option>
+            <option value="" disabled>เลือกสถานะ</option>
             {ORDER_STATUSES.map((status) => (
-              <option key={status.value} value={status.value}>
-                {status.label}
-              </option>
+              <option key={status.value} value={status.value}>{status.label}</option>
             ))}
           </LabeledSelect>
           {isHeaderLocked && (
             <p className="text-xs text-center text-gray-500 -mt-2">
-              (Remove all items to change supplier or status)
+              ลบรายการทั้งหมดก่อนเปลี่ยนผู้จำหน่ายหรือสถานะ
             </p>
           )}
           <div className="border-t pt-4">
-            <h3 className="font-semibold text-lg mb-2">Order Items</h3>
-            <div
-              className={`
-                flex flex-col gap-2 p-2 border rounded-md bg-gray-50
-                ${isItemFormDisabled ? "opacity-50 cursor-not-allowed" : ""}
-              `}
-            >
+            <h3 className="font-semibold text-lg mb-2">รายการวัสดุ</h3>
+            <div className={`flex flex-col gap-2 p-2 border rounded-md bg-gray-50 ${isItemFormDisabled ? "opacity-50 cursor-not-allowed" : ""}`}>
               <SearchableSelect
-                label="Product"
+                label="วัสดุ/อุปกรณ์"
                 name="product_id"
                 options={productOptions}
                 onSelect={handleProductSelect}
                 disabled={isItemFormDisabled}
-                placeholder={
-                  !selectedSupplierId
-                    ? "Select a supplier first..."
-                    : "Search Product..."
-                }
+                placeholder={!selectedSupplierId ? "เลือกผู้จำหน่ายก่อน..." : "ค้นหาวัสดุ..."}
                 required
                 key={itemFormKey}
               />
               <LabeledInput
-                label="Quantity"
+                label="จำนวน"
                 id="temp_qty"
                 type="number"
                 value={currentItem.quantity}
-                onChange={(e) =>
-                  setCurrentItem({
-                    ...currentItem,
-                    quantity: e.target.value,
-                  })
-                }
+                onChange={(e) => setCurrentItem({ ...currentItem, quantity: e.target.value })}
                 disabled={isItemFormDisabled}
               />
               <LabeledInput
-                label="Cost / item"
+                label="ต้นทุนต่อหน่วย"
                 id="temp_cost"
                 type="number"
                 value={currentItem.cost_per_item}
-                onChange={(e) =>
-                  setCurrentItem({
-                    ...currentItem,
-                    cost_per_item: e.target.value,
-                  })
-                }
+                onChange={(e) => setCurrentItem({ ...currentItem, cost_per_item: e.target.value })}
                 disabled={isItemFormDisabled}
               />
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={handleAddItem}
-                disabled={isItemFormDisabled}
-              >
-                Add Item to Order
+              <Button type="button" variant="secondary" onClick={handleAddItem} disabled={isItemFormDisabled}>
+                เพิ่มวัสดุในใบสั่งซื้อ
               </Button>
             </div>
             <ul className="mt-4 space-y-2">
               {items.map((item, index) => (
-                <li
-                  key={index}
-                  className="flex justify-between items-center p-2 border rounded-md"
-                >
+                <li key={index} className="flex justify-between items-center p-2 border rounded-md">
                   <div>
                     <p className="font-medium">{item.product_name}</p>
-                    <p className="text-sm text-gray-500">
-                      {item.quantity} units @ {item.cost_per_item}
-                    </p>
+                    <p className="text-sm text-gray-500">{item.quantity} หน่วย @ {item.cost_per_item}</p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveItem(index)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    Remove
+                  <button type="button" onClick={() => handleRemoveItem(index)} className="text-red-500 hover:text-red-700">
+                    ลบ
                   </button>
                 </li>
               ))}

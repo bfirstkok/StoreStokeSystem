@@ -20,12 +20,12 @@ export default function BestSellingTable({
     <>
       <div className="bg-white shadow-md p-6 rounded-xl w-full md:w-2/3">
         <div className="flex flex-row justify-between items-center mb-4">
-          <h1 className="text-lg">Best Selling Product</h1>
+          <h1 className="text-lg">สินค้าขายดี</h1>
           <button
             onClick={() => setShowModal(true)}
             className="text-blue-600 text-sm hover:underline cursor-pointer"
           >
-            See All
+            ดูทั้งหมด
           </button>
         </div>
 
@@ -33,12 +33,10 @@ export default function BestSellingTable({
           <table className="min-w-full bg-white text-left">
             <thead className="text-sm sm:text-base">
               <tr>
-                <th className="py-2 px-4 font-semibold text-gray-900">
-                  Product
-                </th>
-                <th className="py-2 px-4 font-semibold text-gray-900">Sold</th>
-                <th className="py-2 px-4 font-semibold text-gray-900">Stock</th>
-                <th className="py-2 px-4 font-semibold text-gray-900">Price</th>
+                <th className="py-2 px-4 font-semibold text-gray-900">สินค้า</th>
+                <th className="py-2 px-4 font-semibold text-gray-900">ขายแล้ว</th>
+                <th className="py-2 px-4 font-semibold text-gray-900">สต็อก</th>
+                <th className="py-2 px-4 font-semibold text-gray-900">ราคา</th>
               </tr>
             </thead>
             <tbody className="text-sm sm:text-base border-t border-gray-300">
@@ -69,7 +67,7 @@ export default function BestSellingTable({
                     colSpan={4}
                     className="py-6 text-center text-gray-500 italic"
                   >
-                    No sales data available yet.
+                    ยังไม่มีข้อมูลการขาย
                   </td>
                 </tr>
               )}
@@ -81,14 +79,14 @@ export default function BestSellingTable({
       <Modal
         isOpen={showModal}
         onClose={() => setShowModal(false)}
-        title="All Best Selling Products"
+        title="สินค้าขายดีทั้งหมด"
         footer={
           <Button
             type="button"
             variant="secondary"
             onClick={() => setShowModal(false)}
           >
-            Close
+            ปิด
           </Button>
         }
       >
@@ -96,12 +94,10 @@ export default function BestSellingTable({
           <table className="min-w-full bg-white text-left">
             <thead className="text-sm sm:text-base sticky top-0 bg-white shadow-sm">
               <tr>
-                <th className="py-2 px-4 font-semibold text-gray-900">
-                  Product
-                </th>
-                <th className="py-2 px-4 font-semibold text-gray-900">Sold</th>
-                <th className="py-2 px-4 font-semibold text-gray-900">Stock</th>
-                <th className="py-2 px-4 font-semibold text-gray-900">Price</th>
+                <th className="py-2 px-4 font-semibold text-gray-900">สินค้า</th>
+                <th className="py-2 px-4 font-semibold text-gray-900">ขายแล้ว</th>
+                <th className="py-2 px-4 font-semibold text-gray-900">สต็อก</th>
+                <th className="py-2 px-4 font-semibold text-gray-900">ราคา</th>
               </tr>
             </thead>
             <tbody className="text-sm sm:text-base border-t border-gray-300">

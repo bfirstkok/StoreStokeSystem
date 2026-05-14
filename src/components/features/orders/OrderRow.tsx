@@ -17,6 +17,12 @@ interface OrderRowProps {
   onViewItems: () => void;
 }
 
+const orderStatusLabels: Record<string, string> = {
+  Pending: "รอดำเนินการ",
+  Shipped: "รับเข้าแล้ว",
+  Completed: "เสร็จสมบูรณ์",
+};
+
 export default function OrderRow({
   order,
   onOrderChange,
@@ -43,7 +49,7 @@ export default function OrderRow({
       const result = await updateOrder(null, formData);
       if (result.success) {
         setIsEditing(false);
-        alert("Order updated!");
+        alert("อัปเดตใบสั่งซื้อแล้ว");
         onOrderChange();
       } else {
         alert(result.message);
@@ -52,22 +58,14 @@ export default function OrderRow({
   };
 
   const handleDelete = async () => {
-    if (
-      !window.confirm(
-        "Are you sure you want to delete this order? This action cannot be undone."
-      )
-    ) {
+    if (!window.confirm("ยืนยันลบใบสั่งซื้อนี้หรือไม่? การลบไม่สามารถย้อนกลับได้")) {
       return;
     }
 
     startDeleteTransition(async () => {
       const result = await deleteOrder(order.id);
-      if (result.success) {
-        alert(result.message);
-        onOrderChange();
-      } else {
-        alert(result.message);
-      }
+      alert(result.message);
+      if (result.success) onOrderChange();
     });
   };
 
@@ -77,7 +75,7 @@ export default function OrderRow({
         {order.po_code}
       </td>
       <td className="py-2 px-2 md:px-4">
-        {order.supplier?.supplier_name ?? "N/A"}
+        {order.supplier?.supplier_name ?? "ไม่มีข้อมูล"}
       </td>
       <td className="py-2 px-2 md:px-4 hidden md:table-cell">
         {formatCurrency(order.total_cost)}
@@ -87,7 +85,7 @@ export default function OrderRow({
           onClick={onViewItems}
           className="text-xs sm:text-base text-blue-600 hover:underline cursor-pointer"
         >
-          {order.items.length} Product(s)
+          {order.items.length} รายการ
         </button>
       </td>
 
@@ -101,9 +99,9 @@ export default function OrderRow({
             disabled={isSaving || isDeleting}
           />
         ) : order.expected_delivery_date ? (
-          new Date(order.expected_delivery_date).toLocaleDateString("id-ID")
+          new Date(order.expected_delivery_date).toLocaleDateString("th-TH")
         ) : (
-          "N/A"
+          "ไม่มีข้อมูล"
         )}
       </td>
 
@@ -111,18 +109,18 @@ export default function OrderRow({
         {isEditing ? (
           <select
             value={editData.status}
-            onChange={(e) =>
-              setEditData({ ...editData, status: e.target.value })
-            }
+            onChange={(e) => setEditData({ ...editData, status: e.target.value })}
             className="border rounded-md p-1 w-fit"
             disabled={isSaving || isDeleting}
           >
-            <option value="Pending">Pending</option>
-            <option value="Shipped">Shipped</option>
-            <option value="Completed">Completed</option>
+            <option value="Pending">รอดำเนินการ</option>
+            <option value="Shipped">รับเข้าแล้ว</option>
+            <option value="Completed">เสร็จสมบูรณ์</option>
           </select>
         ) : (
-          <span className={getOrderStatus(order.status)}>{order.status}</span>
+          <span className={getOrderStatus(order.status)}>
+            {orderStatusLabels[order.status] || order.status}
+          </span>
         )}
       </td>
 
@@ -134,6 +132,7 @@ export default function OrderRow({
               onClick={handleSave}
               disabled={isSaving || isDeleting}
               className="text-xs p-1"
+              title="บันทึก"
             >
               {isSaving ? "..." : <SaveIcon className="w-4 h-4 text-white" />}
             </Button>
@@ -142,6 +141,7 @@ export default function OrderRow({
               onClick={() => setIsEditing(false)}
               disabled={isSaving || isDeleting}
               className="text-xs p-1"
+              title="ยกเลิก"
             >
               <CloseIcon className="w-4 h-4 text-red-500" />
             </Button>
@@ -153,7 +153,7 @@ export default function OrderRow({
               onClick={() => setIsEditing(true)}
               className="flex items-center gap-1 text-xs"
               disabled={isCompleted}
-              title={isCompleted ? "Cannot edit complete order" : "Edit"}
+              title={isCompleted ? "รายการที่เสร็จสมบูรณ์แล้วแก้ไขไม่ได้" : "แก้ไข"}
             >
               <EditIcon className="w-4 h-4 text-gray-900" />
             </Button>
@@ -162,13 +162,9 @@ export default function OrderRow({
               onClick={handleDelete}
               className="flex items-center gap-1 text-xs text-red-500"
               disabled={isCompleted || isDeleting}
-              title={isCompleted ? "Cannot delete complete order" : "Delete"}
+              title={isCompleted ? "รายการที่เสร็จสมบูรณ์แล้วลบไม่ได้" : "ลบ"}
             >
-              {isDeleting ? (
-                "..."
-              ) : (
-                <DeleteIcon className="w-4 h-4 text-red-500" />
-              )}
+              {isDeleting ? "..." : <DeleteIcon className="w-4 h-4 text-red-500" />}
             </Button>
           </div>
         )}

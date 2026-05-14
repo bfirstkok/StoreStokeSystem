@@ -25,7 +25,8 @@ export default function UserDropdown({ user }: { user: User }) {
     <div className="relative" ref={menuRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-full overflow-hidden cursor-pointer border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all flex items-center justify-center bg-gray-100"
+        className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-gray-200 bg-gray-100 transition-all hover:ring-4 hover:ring-blue-50 focus:outline-none focus:ring-4 focus:ring-blue-100"
+        aria-label="เมนูบัญชีผู้ใช้"
       >
         {user.profile_picture ? (
           <Image
@@ -33,20 +34,20 @@ export default function UserDropdown({ user }: { user: User }) {
             alt={user.name}
             width={40}
             height={40}
-            className="object-cover w-full h-full"
+            className="h-full w-full object-cover"
           />
         ) : (
-          <span className="font-bold text-gray-500 text-sm">
+          <span className="text-sm font-bold text-gray-500">
             {user.name?.charAt(0).toUpperCase() || <ProfileIcon />}
           </span>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-full mt-3 w-72 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden animate-in fade-in zoom-in-95 duration-200 origin-top-right z-50">
-          <div className="p-4 border-b border-gray-100 bg-gray-50/50">
+        <div className="absolute right-0 top-full z-50 mt-3 w-72 origin-top-right overflow-hidden rounded-xl border border-gray-100 bg-white shadow-xl">
+          <div className="border-b border-gray-100 bg-gray-50/80 p-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-200 bg-white flex-shrink-0 relative">
+              <div className="relative h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-gray-200 bg-white">
                 {user.profile_picture ? (
                   <Image
                     src={user.profile_picture}
@@ -55,38 +56,35 @@ export default function UserDropdown({ user }: { user: User }) {
                     className="object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500 font-bold text-xl">
+                  <div className="flex h-full w-full items-center justify-center bg-gray-200 text-xl font-bold text-gray-500">
                     {user.name?.charAt(0).toUpperCase()}
                   </div>
                 )}
               </div>
-              <div className="flex flex-col min-w-0">
-                <p className="text-sm font-bold text-gray-900 truncate">
+              <div className="min-w-0">
+                <p className="truncate text-sm font-bold text-gray-900">
                   {user.name}
                 </p>
-                <p
-                  className="text-xs text-gray-500 truncate"
-                  title={user.email}
-                >
+                <p className="truncate text-xs text-gray-500" title={user.email}>
                   {user.email}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="p-2 flex flex-col gap-1">
+          <div className="flex flex-col gap-1 p-2">
             <Link
               href="/settings"
               onClick={() => setIsOpen(false)}
-              className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
+              className="rounded-lg px-4 py-2.5 text-left text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
             >
-              Account Settings
+              ตั้งค่าบัญชี
             </Link>
             <button
               onClick={() => logout()}
-              className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              className="rounded-lg px-4 py-2.5 text-left text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
             >
-              Log Out
+              ออกจากระบบ
             </button>
           </div>
         </div>

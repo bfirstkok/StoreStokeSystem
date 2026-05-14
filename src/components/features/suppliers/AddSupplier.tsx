@@ -29,7 +29,7 @@ const AddSupplier = ({ onOrderChange }: { onOrderChange: () => void }) => {
 
   const formRef = useRef<HTMLFormElement>(null);
 
-  const handleDiscard = useCallback(() => {
+  const handleยกเลิก = useCallback(() => {
     formRef.current?.reset();
     setShowForm(false);
   }, []);
@@ -38,11 +38,11 @@ const AddSupplier = ({ onOrderChange }: { onOrderChange: () => void }) => {
       alert(state.message);
       processedStateRef.current = state;
       if (state.success) {
-        handleDiscard();
+        handleยกเลิก();
         onOrderChange();
       }
     }
-  }, [state, onOrderChange, handleDiscard]);
+  }, [state, onOrderChange, handleยกเลิก]);
 
   return (
     <div className="">
@@ -50,21 +50,21 @@ const AddSupplier = ({ onOrderChange }: { onOrderChange: () => void }) => {
         onClick={() => setShowForm(true)}
         className="text-xs sm:text-base"
       >
-        Add Supplier
+        เพิ่มผู้จำหน่าย
       </Button>
       <Modal
         isOpen={showForm}
-        onClose={handleDiscard}
-        title="New Supplier"
+        onClose={handleยกเลิก}
+        title="เพิ่มผู้จำหน่ายใหม่"
         footer={
           <>
             <Button
               type="button"
               variant="secondary"
-              onClick={handleDiscard}
+              onClick={handleยกเลิก}
               className="text-xs sm:text-base"
             >
-              Discard
+              ยกเลิก
             </Button>
             <Button
               type="submit"
@@ -72,7 +72,7 @@ const AddSupplier = ({ onOrderChange }: { onOrderChange: () => void }) => {
               disabled={isPending}
               className="text-xs sm:text-base"
             >
-              {isPending ? "Adding..." : "Add Supplier"}
+              {isPending ? "กำลังเพิ่ม..." : "เพิ่มผู้จำหน่าย"}
             </Button>
           </>
         }
@@ -86,36 +86,36 @@ const AddSupplier = ({ onOrderChange }: { onOrderChange: () => void }) => {
           <LabeledInput
             id="supplier_name"
             name="supplier_name"
-            label="Supplier Name"
+            label="ชื่อผู้จำหน่าย"
             type="text"
-            placeholder="e.g., PT. Stok Abadi"
+            placeholder="เช่น ร้านวัสดุก่อสร้าง ABC"
             required
           />
 
           <LabeledInput
             id="address"
             name="address"
-            label="Address Supplier"
+            label="ที่อยู่ผู้จำหน่าย"
             type="text"
-            placeholder="e.g., Jl. Stok Abadi"
+            placeholder="เช่น 99/1 ถ.ก่อสร้าง"
             required
           />
 
           <LabeledInput
             id="contact_number"
             name="contact_number"
-            label="Contact Number"
+            label="เบอร์ติดต่อ"
             type="number"
-            placeholder="e.g., 081234567890"
+            placeholder="เช่น 0812345678"
             required
           />
 
           <LabeledInput
             id="purchase_link"
             name="purchase_link"
-            label="Purchase Link"
+            label="ลิงก์สั่งซื้อ"
             type="text"
-            placeholder="e.g., https://tokopedia.com/..."
+            placeholder="เช่น https://..."
           />
         </form>
       </Modal>

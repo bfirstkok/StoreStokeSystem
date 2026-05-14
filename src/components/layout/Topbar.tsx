@@ -40,34 +40,43 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
   }, []);
 
   return (
-    <div className="flex flex-row justify-between items-center gap-2 px-4 py-4 md:pr-6 bg-white shadow-md relative z-20">
-      <button
-        onClick={onMenuClick}
-        className="md:hidden p-2 -ml-2"
-        aria-label="Open menu"
-      >
-        <HamburgerIcon className="w-6 h-6" />
-      </button>
+    <header className="sticky top-0 z-20 border-b border-gray-200 bg-white/95 px-3 py-3 shadow-sm backdrop-blur sm:px-5 lg:px-6">
+      <div className="mx-auto flex w-full max-w-[1500px] items-center gap-3">
+        <button
+          onClick={onMenuClick}
+          className="rounded-lg p-2 text-gray-600 hover:bg-gray-100 hover:text-gray-950 md:hidden"
+          aria-label="เปิดเมนู"
+        >
+          <HamburgerIcon className="h-6 w-6" />
+        </button>
 
-      <div className="relative flex-1 md:w-1/2 max-w-2xl">
-        <GlobalSearch />
+        <div className="hidden min-w-[180px] md:block">
+          <p className="text-xs font-medium text-gray-400">ยินดีต้อนรับ</p>
+          <p className="truncate text-sm font-semibold text-gray-800">
+            {loading ? "กำลังโหลดข้อมูล..." : user?.name || "ผู้ใช้งาน"}
+          </p>
+        </div>
+
+        <div className="min-w-0 flex-1">
+          <GlobalSearch />
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          {loading ? (
+            <div className="h-10 w-10 rounded-full bg-gray-200 animate-pulse" />
+          ) : (
+            <NotificationDropdown alerts={alerts} />
+          )}
+
+          {loading ? (
+            <div className="h-10 w-10 rounded-full border border-gray-300 bg-gray-200 animate-pulse" />
+          ) : user ? (
+            <UserDropdown user={user} />
+          ) : (
+            <div className="h-10 w-10 rounded-full bg-gray-200" />
+          )}
+        </div>
       </div>
-
-      <div className="flex items-center gap-3 md:gap-6">
-        {loading ? (
-          <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
-        ) : (
-          <NotificationDropdown alerts={alerts} />
-        )}
-
-        {loading ? (
-          <div className="w-10 h-10 rounded-full bg-gray-200 animate-pulse border border-gray-300" />
-        ) : user ? (
-          <UserDropdown user={user} />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-gray-200" />
-        )}
-      </div>
-    </div>
+    </header>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { getPaginatedCustomersByUser } from "@/lib/actions/customers";
 import Pagination, { PAGE_SIZE } from "@/components/ui/Pagination";
@@ -13,7 +13,7 @@ interface CustomerTableProps {
   onOrderChange: () => void;
 }
 
-export default function CustomerTable({
+function CustomerTableContent({
   refreshKey,
   onOrderChange,
 }: CustomerTableProps) {
@@ -80,5 +80,13 @@ export default function CustomerTable({
         />
       </div>
     </div>
+  );
+}
+
+export default function CustomerTable(props: CustomerTableProps) {
+  return (
+    <Suspense fallback={null}>
+      <CustomerTableContent {...props} />
+    </Suspense>
   );
 }

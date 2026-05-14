@@ -18,30 +18,30 @@ export default function OverallInventory({
   noStockCount,
 }: OverallInventoryProps) {
   return (
-    <div className="bg-white shadow-md p-4 rounded-md">
-      <h1 className="sm:text-lg tracking-wide pb-2">Overall Inventory</h1>
-      <div className="flex flex-row justify-between gap-6">
+    <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+      <h1 className="pb-2 text-lg font-semibold tracking-wide text-gray-900">ภาพรวมคลังสินค้า</h1>
+      <div className="grid gap-4 md:grid-cols-3">
         <StatCard
-          title="Categories"
+          title="หมวดหมู่"
           titleColor="text-blue-600"
           value={totalCategories}
-          description="Total Categories"
+          description="หมวดหมู่ทั้งหมด"
         />
         <StatCardDouble
-          title="Products"
+          title="สินค้า"
           titleColor="text-yellow-700"
           valueA={totalProducts}
-          descriptionA="Total Products"
+          descriptionA="สินค้าทั้งหมด"
           valueB={formatCurrencyShort(totalInventoryValue)}
-          descriptionB="Total Value"
+          descriptionB="มูลค่าสต็อก"
         />
         <StatCardDouble
-          title="Stocks Warning"
-          titleColor="text-red-400"
+          title="แจ้งเตือนสต็อก"
+          titleColor="text-red-500"
           valueA={lowStockCount}
-          descriptionA="Low Stock"
+          descriptionA="ใกล้หมด"
           valueB={noStockCount}
-          descriptionB="Not in Stock"
+          descriptionB="หมดสต็อก"
         />
       </div>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { getPaginatedProductsByUser } from "@/lib/actions/products";
 import Pagination, { PAGE_SIZE } from "@/components/ui/Pagination";
@@ -13,7 +13,7 @@ interface ProductTableProps {
   refreshKey: number;
 }
 
-export default function ProductTable({
+function ProductTableContent({
   selectedFilter,
   refreshKey,
 }: ProductTableProps) {
@@ -48,15 +48,13 @@ export default function ProductTable({
         <table className="min-w-full bg-white text-left">
           <thead className="text-sm sm:text-base">
             <tr>
-              <th className="py-2 px-2 md:px-4 hidden md:table-cell">
-                Supplier
-              </th>
-              <th className="py-2 px-2 md:px-4">Product</th>
-              <th className="py-2 px-2 md:px-4 hidden lg:table-cell">Type</th>
-              <th className="py-2 px-2 md:px-4 hidden lg:table-cell">Cost</th>
-              <th className="py-2 px-2 md:px-4 hidden md:table-cell">Price</th>
-              <th className="py-2 px-2 md:px-4">Qty</th>
-              <th className="py-2 px-2 md:px-4">Status</th>
+              <th className="py-2 px-2 md:px-4 hidden md:table-cell">ผู้จำหน่าย</th>
+              <th className="py-2 px-2 md:px-4">วัสดุ/อุปกรณ์</th>
+              <th className="py-2 px-2 md:px-4 hidden lg:table-cell">ประเภท</th>
+              <th className="py-2 px-2 md:px-4 hidden lg:table-cell">ต้นทุน</th>
+              <th className="py-2 px-2 md:px-4 hidden md:table-cell">ราคาประเมิน</th>
+              <th className="py-2 px-2 md:px-4">จำนวน</th>
+              <th className="py-2 px-2 md:px-4">สถานะ</th>
             </tr>
           </thead>
           <tbody className="text-sm sm:text-base border-t border-gray-300">
@@ -65,11 +63,8 @@ export default function ProductTable({
             ))}
             {products.length === 0 && (
               <tr>
-                <td
-                  colSpan={4}
-                  className="py-8 text-center text-gray-500 italic"
-                >
-                  No products found.
+                <td colSpan={7} className="py-8 text-center text-gray-500 italic">
+                  ไม่พบรายการวัสดุ
                 </td>
               </tr>
             )}
@@ -82,5 +77,13 @@ export default function ProductTable({
         onPageChange={handlePageChange}
       />
     </div>
+  );
+}
+
+export default function ProductTable(props: ProductTableProps) {
+  return (
+    <Suspense fallback={null}>
+      <ProductTableContent {...props} />
+    </Suspense>
   );
 }

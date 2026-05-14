@@ -9,29 +9,29 @@ export default function PurchaseOverview({
 }) {
   return (
     <div className="bg-white shadow-md p-6 rounded-xl w-full md:w-2/3">
-      <h1 className="text-lg pb-4">Purchase Overview</h1>
+      <h1 className="text-lg pb-4">ภาพรวมจัดซื้อ</h1>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-0 md:divide-x md:divide-gray-200">
         <DashboardStat
-          title="Cost"
+          title="ต้นทุน"
           value={formatCurrency(data.cost)}
           icon="/cost.svg"
           color="text-red-600"
         />
         <DashboardStat
-          title="Total"
+          title="ทั้งหมด"
           value={data.purchase}
           icon="/purchase.svg"
           color="text-blue-500"
         />
         <DashboardStat
-          title="Shipped"
+          title="จัดส่งแล้ว"
           value={data.shipped}
           icon="/truck.svg"
           color="text-blue-600"
         />
         <DashboardStat
-          title="Pending"
+          title="รอดำเนินการ"
           value={data.pending}
           icon="/clock.svg"
           color="text-yellow-600"

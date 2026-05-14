@@ -13,10 +13,10 @@ type SupplierOption = {
 };
 
 const filterOptions: DropdownOption[] = [
-  { label: "All", value: null },
-  { label: "In Stock", value: "In-Stock" },
-  { label: "Out of Stock", value: "Out of Stock" },
-  { label: "Low Stock", value: "Low Stock" },
+  { label: "ทั้งหมด", value: null },
+  { label: "มีสินค้า", value: "In-Stock" },
+  { label: "หมดสต็อก", value: "Out of Stock" },
+  { label: "ใกล้หมด", value: "Low Stock" },
 ];
 
 export default function InventoryClientWrapper({
@@ -53,13 +53,13 @@ export default function InventoryClientWrapper({
   }, [isFilterOpen]);
 
   return (
-    <div className="bg-white shadow-md p-4 rounded-md">
-      <div className="flex flex-row justify-between items-center">
-        <h1 className="sm:text-lg tracking-wide">Products</h1>
-        <div className="flex flex-row gap-4 tracking-wide">
+    <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="text-lg font-semibold tracking-wide text-gray-900">สินค้า</h1>
+        <div className="flex flex-wrap gap-3 tracking-wide">
           <AddProduct suppliers={suppliers} onOrderChange={triggerRefresh} />
           <FilterDropdown
-            label="Filters"
+            label="ตัวกรอง"
             icon={<FilterIcon className="w-4 h-4 text-gray-600" />}
             options={filterOptions}
             onSelectFilter={setSelectedFilter}

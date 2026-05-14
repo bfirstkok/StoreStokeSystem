@@ -34,13 +34,8 @@ export default function AddProduct({
 }: AddProductProps) {
   const [showForm, setShowForm] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [state, formAction, isPending] = useActionState(
-    insertProduct,
-    initialState
-  );
-  const [selectedSupplierID, setSelectedSupplierId] = useState<string | null>(
-    null
-  );
+  const [state, formAction, isPending] = useActionState(insertProduct, initialState);
+  const [selectedSupplierID, setSelectedSupplierId] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const processedStateRef = useRef(initialState);
 
@@ -53,6 +48,7 @@ export default function AddProduct({
   const handleDiscard = useCallback(() => {
     formRef.current?.reset();
     setPreviewUrl(null);
+    setSelectedSupplierId(null);
     setShowForm(false);
   }, []);
 
@@ -77,50 +73,28 @@ export default function AddProduct({
 
   return (
     <>
-      <Button
-        onClick={() => setShowForm(true)}
-        className="flex items-center text-xs sm:text-base"
-      >
-        Add Product
+      <Button onClick={() => setShowForm(true)} className="flex items-center text-xs sm:text-base">
+        เพิ่มวัสดุ
       </Button>
       <Modal
         isOpen={showForm}
         onClose={handleDiscard}
-        title="New Product"
+        title="เพิ่มวัสดุใหม่"
         footer={
           <>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={handleDiscard}
-              className="text-xs sm:text-base"
-            >
-              Discard
+            <Button type="button" variant="secondary" onClick={handleDiscard} className="text-xs sm:text-base">
+              ยกเลิก
             </Button>
-            <Button
-              type="submit"
-              form="product-form"
-              disabled={isPending}
-              className="text-xs sm:text-base"
-            >
-              {isPending ? "Adding..." : "Add Product"}
+            <Button type="submit" form="product-form" disabled={isPending} className="text-xs sm:text-base">
+              {isPending ? "กำลังเพิ่ม..." : "เพิ่มวัสดุ"}
             </Button>
           </>
         }
       >
-        <form
-          id="product-form"
-          ref={formRef}
-          action={formAction}
-          className="flex flex-col gap-5"
-        >
-          <ImageDropzone
-            name="image_file"
-            previewUrl={previewUrl}
-            onChange={handleFileChange}
-          />
+        <form id="product-form" ref={formRef} action={formAction} className="flex flex-col gap-5">
+          <ImageDropzone name="image_file" previewUrl={previewUrl} onChange={handleFileChange} />
           <SearchableSelect
-            label="Supplier"
+            label="ผู้จำหน่าย"
             name="supplier_id"
             options={supplierOptions}
             onSelect={setSelectedSupplierId}
@@ -128,64 +102,34 @@ export default function AddProduct({
             required
           />
           <LabeledInput
-            label="Product Name"
+            label="ชื่อวัสดุ/อุปกรณ์"
             id="name"
             name="product_name"
             type="text"
-            placeholder="e.g., Long Sleeve Shirt"
+            placeholder="เช่น ปูนซีเมนต์, สว่านไฟฟ้า"
             required
           />
           <LabeledInput
-            label="Product Type"
+            label="ประเภทวัสดุ"
             id="type"
             name="product_type"
             type="text"
-            placeholder="e.g., Men's Apparel"
+            placeholder="เช่น ปูน, เหล็ก, เครื่องมือช่าง"
             required
           />
-          <LabeledSelect
-            label="Product Category"
-            id="category"
-            name="product_category"
-            defaultValue=""
-            required
-          >
+          <LabeledSelect label="หมวดหมู่" id="category" name="product_category" defaultValue="" required>
             <option value="" disabled>
-              Select product category
+              เลือกหมวดหมู่
             </option>
-            {PRODUCT_CATEGORIES.map((categories) => (
-              <option key={categories.value} value={categories.value}>
-                {categories.label}
+            {PRODUCT_CATEGORIES.map((category) => (
+              <option key={category.value} value={category.value}>
+                {category.label}
               </option>
             ))}
           </LabeledSelect>
-          <LabeledInput
-            label="Qty"
-            id="amountStock"
-            name="amount_stock"
-            type="number"
-            placeholder="e.g., 50"
-            min={0}
-            required
-          />
-          <LabeledInput
-            label="Cost"
-            id="priceBuy"
-            name="buy_price"
-            type="number"
-            placeholder="e.g., 75000"
-            min={0}
-            required
-          />
-          <LabeledInput
-            label="Price"
-            id="priceSell"
-            name="sell_price"
-            type="number"
-            placeholder="e.g., 149000"
-            min={0}
-            required
-          />
+          <LabeledInput label="จำนวน" id="amountStock" name="amount_stock" type="number" placeholder="เช่น 50" min={0} required />
+          <LabeledInput label="ต้นทุน" id="priceBuy" name="buy_price" type="number" placeholder="เช่น 75000" min={0} required />
+          <LabeledInput label="ราคาประเมิน/เบิกจ่าย" id="priceSell" name="sell_price" type="number" placeholder="เช่น 149000" min={0} required />
         </form>
       </Modal>
     </>

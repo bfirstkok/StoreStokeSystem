@@ -1,10 +1,10 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Button } from "@/components/ui/Button";
 
-export default function DateRangeFilter() {
+function DateRangeFilterContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -48,5 +48,13 @@ export default function DateRangeFilter() {
         Apply Filter
       </Button>
     </div>
+  );
+}
+
+export default function DateRangeFilter() {
+  return (
+    <Suspense fallback={null}>
+      <DateRangeFilterContent />
+    </Suspense>
   );
 }

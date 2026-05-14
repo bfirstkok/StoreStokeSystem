@@ -1,13 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useDebouncedCallback } from "use-debounce";
 import { SearchIcon } from "@/components/icons";
 import { globalSearch, SearchResult } from "@/lib/actions/search";
 import { getTypeLabel } from "@/lib/utils/formatters";
 
-export default function GlobalSearch() {
+function GlobalSearchContent() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isOpen, setIsOpen] = useState(false);
@@ -59,7 +59,6 @@ export default function GlobalSearch() {
   const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setQuery(val);
-
     handleSearch(val);
 
     if (val.length === 0) {
@@ -94,63 +93,68 @@ export default function GlobalSearch() {
     <div className="relative w-full" ref={wrapperRef}>
       <div className="relative">
         <input
-          type="text"
-          placeholder="Search product, supplier, invoice..."
-          className="w-full text-sm sm:text-base p-2 pl-10 border border-gray-400 outline-none rounded-md focus:ring-1 focus:ring-blue-600 focus:border-blue-600 transition-all"
+          type="search"
+          placeholder="ค้นหาวัสดุ อุปกรณ์ ผู้จำหน่าย หรือเลขใบสั่งซื้อ"
+          className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 pl-11 pr-4 text-sm text-gray-900 outline-none transition-all placeholder:text-gray-400 focus:border-blue-400 focus:bg-white focus:ring-4 focus:ring-blue-50"
           value={query}
           onChange={onInputChange}
           onFocus={() => {
             if (query.length >= 2) setIsOpen(true);
           }}
         />
-        <div className="absolute left-3 top-0 h-full flex items-center pointer-events-none">
+        <div className="pointer-events-none absolute left-3 top-0 flex h-full items-center">
           {isLoading ? (
-            <div className="w-5 h-5 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+            <div className="h-5 w-5 rounded-full border-2 border-gray-300 border-t-blue-600 animate-spin" />
           ) : (
-            <SearchIcon className="w-5 h-5 text-gray-400" />
+            <SearchIcon className="h-5 w-5 text-gray-400" />
           )}
         </div>
       </div>
 
       {isOpen && query.length >= 2 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl z-[9999] max-h-80 overflow-y-auto">
+        <div className="absolute left-0 right-0 top-full z-[9999] mt-2 max-h-96 overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-xl">
           {isLoading && results.length === 0 && (
-            <div className="p-4 text-center text-gray-500 text-sm">
-              Searching...
+            <div className="p-5 text-center text-sm text-gray-500">
+              กำลังค้นหา...
             </div>
           )}
 
           {!isLoading && results.length > 0 && (
             <ul className="py-2">
               {results.map((result, index) => (
-                <li
-                  key={`${result.type}-${result.id}-${index}`}
-                  className="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 border-gray-100 transition-colors"
-                  onClick={() => handleSelect(result)}
-                >
-                  <div className="flex flex-col">
-                    <span className="font-medium text-gray-900 text-sm">
+                <li key={`${result.type}-${result.id}-${index}`}>
+                  <button
+                    type="button"
+                    className="block w-full px-4 py-3 text-left transition-colors hover:bg-blue-50"
+                    onClick={() => handleSelect(result)}
+                  >
+                    <span className="block truncate text-sm font-semibold text-gray-900">
                       {result.title}
                     </span>
-                    <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold mt-0.5">
-                      {getTypeLabel(result.type)} •{" "}
-                      <span className="normal-case font-normal">
-                        {result.subtitle}
-                      </span>
+                    <span className="mt-0.5 block truncate text-xs font-medium text-gray-500">
+                      {getTypeLabel(result.type)} • {result.subtitle}
                     </span>
-                  </div>
+                  </button>
                 </li>
               ))}
             </ul>
           )}
 
           {!isLoading && results.length === 0 && (
-            <div className="p-4 text-center text-gray-500 text-sm">
-              No results found for &quot;{query}&quot;
+            <div className="p-5 text-center text-sm text-gray-500">
+              ไม่พบผลลัพธ์สำหรับ &quot;{query}&quot;
             </div>
           )}
         </div>
       )}
     </div>
+  );
+}
+
+export default function GlobalSearch() {
+  return (
+    <Suspense fallback={null}>
+      <GlobalSearchContent />
+    </Suspense>
   );
 }

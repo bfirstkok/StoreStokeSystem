@@ -26,7 +26,7 @@ export default function SearchableSelect({
   onSelect,
   required = false,
   disabled = false,
-  placeholder = "Search...",
+  placeholder = "ค้นหา...",
   value,
 }: SearchableSelectProps) {
   const [query, setQuery] = useState("");
@@ -123,7 +123,7 @@ export default function SearchableSelect({
                 </li>
               ))
             ) : (
-              <li className="p-2 text-gray-500">No supplier found.</li>
+              <li className="p-2 text-gray-500">ไม่พบข้อมูล</li>
             )}
           </ul>
         )}

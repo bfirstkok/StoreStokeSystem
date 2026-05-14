@@ -28,11 +28,9 @@ export default function ImageDropzone({
     }
 
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      const errorMsg = `File is too large. Max size is ${MAX_FILE_SIZE_MB}MB.`;
+      const errorMsg = `ไฟล์ใหญ่เกินไป ขนาดสูงสุดคือ ${MAX_FILE_SIZE_MB}MB`;
       setError(errorMsg);
-
       setTimeout(() => setError(null), 3000);
-
       onChange(null);
       return;
     }
@@ -54,10 +52,9 @@ export default function ImageDropzone({
 
   return (
     <div
-      className={`border-2 border-dashed rounded-lg p-3 w-full max-w-xs mx-auto 
-                  flex flex-col items-center justify-center cursor-pointer transition-all ${
-                    isDragging ? "border-blue-500" : "border-gray-300"
-                  }`}
+      className={`border-2 border-dashed rounded-lg p-3 w-full max-w-xs mx-auto flex flex-col items-center justify-center cursor-pointer transition-all ${
+        isDragging ? "border-blue-500" : "border-gray-300"
+      }`}
       onDragEnter={() => setIsDragging(true)}
       onDragLeave={() => setIsDragging(false)}
       onDragOver={handleDragOver}
@@ -67,17 +64,17 @@ export default function ImageDropzone({
         // eslint-disable-next-line @next/next/no-img-element
         <img
           src={previewUrl}
-          alt="Selected"
+          alt="รูปที่เลือก"
           className="w-full h-auto rounded-md mb-3"
         />
       ) : (
         <>
-          <p className="text-gray-600 text-center">Drag Image here</p>
-          <span className="text-gray-400 my-1">or</span>
+          <p className="text-gray-600 text-center">ลากรูปภาพมาวางที่นี่</p>
+          <span className="text-gray-400 my-1">หรือ</span>
         </>
       )}
       <label className="text-blue-600 px-4 cursor-pointer hover:text-blue-400">
-        {previewUrl ? "Change Image" : "Browse Image"}
+        {previewUrl ? "เปลี่ยนรูปภาพ" : "เลือกรูปภาพ"}
         <input
           type="file"
           name={name}
@@ -86,9 +83,7 @@ export default function ImageDropzone({
           onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
         />
       </label>
-      {error && (
-        <p className="text-red-500 text-sm mt-2 text-center">{error}</p>
-      )}
+      {error && <p className="text-red-500 text-sm mt-2 text-center">{error}</p>}
     </div>
   );
 }

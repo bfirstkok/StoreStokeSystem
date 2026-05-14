@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { getPaginatedSuppliersByUser } from "@/lib/actions/suppliers";
 import Pagination, { PAGE_SIZE } from "@/components/ui/Pagination";
@@ -13,7 +13,7 @@ interface SupplierTableProps {
   onOrderChange: () => void;
 }
 
-export default function SupplierTable({
+function SupplierTableContent({
   refreshKey,
   onOrderChange,
 }: SupplierTableProps) {
@@ -47,11 +47,11 @@ export default function SupplierTable({
         <table className="min-w-full bg-white text-left">
           <thead className="text-sm sm:text-base">
             <tr>
-              <th className="py-2 px-4">Supplier Name</th>
-              <th className="py-2 px-4">Address</th>
-              <th className="py-2 px-4">Contact Number</th>
-              <th className="py-2 px-4">Purchase Link</th>
-              <th className="py-2 px-4">Action</th>
+              <th className="py-2 px-4">ชื่อผู้จำหน่าย</th>
+              <th className="py-2 px-4">ที่อยู่</th>
+              <th className="py-2 px-4">เบอร์ติดต่อ</th>
+              <th className="py-2 px-4">ลิงก์สั่งซื้อ</th>
+              <th className="py-2 px-4">จัดการ</th>
             </tr>
           </thead>
           <tbody className="text-sm sm:text-base border-t border-gray-300">
@@ -68,7 +68,7 @@ export default function SupplierTable({
                   colSpan={4}
                   className="py-8 text-center text-gray-500 italic"
                 >
-                  No suppliers found.
+                  ไม่พบผู้จำหน่าย
                 </td>
               </tr>
             )}
@@ -81,5 +81,13 @@ export default function SupplierTable({
         />
       </div>
     </div>
+  );
+}
+
+export default function SupplierTable(props: SupplierTableProps) {
+  return (
+    <Suspense fallback={null}>
+      <SupplierTableContent {...props} />
+    </Suspense>
   );
 }

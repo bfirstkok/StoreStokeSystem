@@ -180,15 +180,15 @@ export function formatDateForInput(
  * @returns An object containing the display label and Tailwind CSS color class.
  *
  * @example
- * getStockStatus(5); // { label: "Low Stock", color: "text-yellow-500" }
+ * getStockStatus(5); // { label: "ใกล้หมด", color: "text-yellow-500" }
  */
 export function getStockStatus(stock: number): {
   label: string;
   color: string;
 } {
-  if (stock === 0) return { label: "Out of Stock", color: "text-red-500" };
-  if (stock < 10) return { label: "Low Stock", color: "text-yellow-500" };
-  return { label: "In-Stock", color: "text-green-500" };
+  if (stock === 0) return { label: "หมดสต็อก", color: "text-red-500" };
+  if (stock < 10) return { label: "ใกล้หมด", color: "text-yellow-500" };
+  return { label: "มีสินค้า", color: "text-green-500" };
 }
 
 /**
@@ -216,11 +216,11 @@ export function getOrderStatus(status: string): string {
  */
 export function getTypeLabel(type: string): string {
   const labels: Record<string, string> = {
-    product: "Product",
-    supplier: "Supplier",
-    customer: "Customer",
-    sale: "Invoice",
-    order: "Purchase Order",
+    product: "สินค้า",
+    supplier: "ซัพพลายเออร์",
+    customer: "ลูกค้า",
+    sale: "ใบขาย",
+    order: "ใบสั่งซื้อ",
   };
 
   return labels[type] || type;
@@ -288,3 +288,4 @@ export function formatDate(
 
   return new Intl.DateTimeFormat("en-GB", options).format(d);
 }
+

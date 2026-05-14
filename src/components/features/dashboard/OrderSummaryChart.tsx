@@ -14,8 +14,8 @@ import { ChartData } from "@/lib/types";
 
 export default function OrderSummaryChart({ data }: { data: ChartData[] }) {
   return (
-    <div className="bg-white shadow-md p-6 rounded-xl w-full lg:w-1/3">
-      <h2 className="text-lg mb-6">Order Summary</h2>
+    <div className="bg-white shadow-md p-6 rounded-xl w-full">
+      <h2 className="text-lg mb-6">สรุปรายการรับเข้า</h2>
 
       <div className="h-[300px] w-full">
         <ResponsiveContainer width="100%" height="100%">
@@ -57,7 +57,7 @@ export default function OrderSummaryChart({ data }: { data: ChartData[] }) {
             <Line
               type="monotone"
               dataKey="ordered"
-              name="Ordered"
+              name="สั่งซื้อ"
               stroke="#F59E0B"
               strokeWidth={3}
               dot={{ r: 4, strokeWidth: 2 }}
@@ -66,7 +66,7 @@ export default function OrderSummaryChart({ data }: { data: ChartData[] }) {
             <Line
               type="monotone"
               dataKey="delivered"
-              name="Delivered"
+              name="รับเข้าแล้ว"
               stroke="#0EA5E9"
               strokeWidth={3}
               dot={{ r: 4, strokeWidth: 2 }}

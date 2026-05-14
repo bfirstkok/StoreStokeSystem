@@ -10,20 +10,17 @@ interface OrderItemsModalProps {
   onClose: () => void;
 }
 
-export default function OrderItemsModal({
-  order,
-  onClose,
-}: OrderItemsModalProps) {
+export default function OrderItemsModal({ order, onClose }: OrderItemsModalProps) {
   if (!order) return null;
 
   return (
     <Modal
       isOpen={!!order}
       onClose={onClose}
-      title={`Items for Order #${order.id}`}
+      title={`รายการในใบสั่งซื้อ #${order.id}`}
       footer={
         <Button type="button" variant="secondary" onClick={onClose}>
-          Close
+          ปิด
         </Button>
       }
     >
@@ -31,14 +28,14 @@ export default function OrderItemsModal({
         {order.items.map((item, index) => (
           <li key={index} className="border-b pb-3">
             <div className="flex justify-between font-medium">
-              <span>{item.product?.product_name ?? "Product not found"}</span>
-              <span className="text-gray-600">Qty: {item.quantity}</span>
+              <span>{item.product?.product_name ?? "ไม่พบวัสดุ"}</span>
+              <span className="text-gray-600">จำนวน: {item.quantity}</span>
             </div>
             <div className="text-sm text-gray-500">
               {item.product?.product_type} ({item.product?.product_category})
             </div>
             <div className="text-sm text-gray-500">
-              Cost: {formatCurrency(item.cost_per_item)}
+              ต้นทุน: {formatCurrency(item.cost_per_item)}
             </div>
           </li>
         ))}

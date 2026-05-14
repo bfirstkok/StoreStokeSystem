@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { getPaginatedOrders } from "@/lib/actions/orders";
 import Pagination, { PAGE_SIZE } from "@/components/ui/Pagination";
@@ -15,7 +15,7 @@ interface OrderTableProps {
   onOrderChange: () => void;
 }
 
-export default function OrderTable({
+function OrderTableContent({
   selectedFilter,
   refreshKey,
   onOrderChange,
@@ -23,9 +23,7 @@ export default function OrderTable({
   const [orders, setOrders] = useState<Order[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const { currentPage, handlePageChange } = usePagination();
-  const [viewingOrderItems, setViewingOrderItems] = useState<Order | null>(
-    null
-  );
+  const [viewingOrderItems, setViewingOrderItems] = useState<Order | null>(null);
 
   const searchParams = useSearchParams();
   const searchQuery = searchParams.get("search") || "";
@@ -50,26 +48,19 @@ export default function OrderTable({
 
   return (
     <>
-      <OrderItemsModal
-        order={viewingOrderItems}
-        onClose={() => setViewingOrderItems(null)}
-      />
+      <OrderItemsModal order={viewingOrderItems} onClose={() => setViewingOrderItems(null)} />
       <div className="pt-2 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white text-left text-sm sm:text-base">
             <thead>
               <tr>
-                <th className="py-2 px-2 md:px-4 hidden md:table-cell">PO ID</th>
-                <th className="py-2 px-2 md:px-4">Supplier</th>
-                <th className="py-2 px-2 md:px-4 hidden md:table-cell">
-                  Total Cost
-                </th>
-                <th className="py-2 px-2 md:px-4">Items</th>
-                <th className="py-2 px-2 md:px-4 hidden md:table-cell">
-                  Expected
-                </th>
-                <th className="py-2 px-2 md:px-4">Status</th>
-                <th className="py-2 px-4">Actions</th>
+                <th className="py-2 px-2 md:px-4 hidden md:table-cell">เลขที่ PO</th>
+                <th className="py-2 px-2 md:px-4">ผู้จำหน่าย</th>
+                <th className="py-2 px-2 md:px-4 hidden md:table-cell">ต้นทุนรวม</th>
+                <th className="py-2 px-2 md:px-4">รายการ</th>
+                <th className="py-2 px-2 md:px-4 hidden md:table-cell">วันที่รับเข้า</th>
+                <th className="py-2 px-2 md:px-4">สถานะ</th>
+                <th className="py-2 px-4">จัดการ</th>
               </tr>
             </thead>
             <tbody className="border-t border-gray-300">
@@ -82,24 +73,25 @@ export default function OrderTable({
                 />
               ))}
               {orders.length === 0 && (
-              <tr>
-                <td
-                  colSpan={4}
-                  className="py-8 text-center text-gray-500 italic"
-                >
-                  No orders found.
-                </td>
-              </tr>
-            )}
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-gray-500 italic">
+                    ไม่พบใบสั่งซื้อ
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
+        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange} />
       </div>
     </>
+  );
+}
+
+export default function OrderTable(props: OrderTableProps) {
+  return (
+    <Suspense fallback={null}>
+      <OrderTableContent {...props} />
+    </Suspense>
   );
 }

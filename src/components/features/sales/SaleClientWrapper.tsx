@@ -9,12 +9,12 @@ import { ProductOption, CustomerOption } from "@/lib/types";
 import { PAYMENT_METHODS, PAYMENT_STATUSES } from "@/lib/constants";
 
 const statusOptions: DropdownOption[] = [
-  { label: "All Status", value: null },
+  { label: "ทุกสถานะ", value: null },
   ...PAYMENT_STATUSES,
 ];
 
 const methodOptions: DropdownOption[] = [
-  { label: "All Methods", value: null },
+  { label: "ทุกวิธีชำระเงิน", value: null },
   ...PAYMENT_METHODS,
 ];
 
@@ -34,9 +34,9 @@ export default function SaleClientWrapper({
   const [methodFilter, setMethodFilter] = useState<string | null>(null);
 
   return (
-    <div className="bg-white shadow-md p-4 rounded-md">
+    <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
-        <h1 className="text-lg tracking-wide">Sales Transactions</h1>
+        <h1 className="text-lg font-semibold tracking-wide text-gray-900">รายการขาย</h1>
 
         <div className="flex flex-wrap gap-3 items-center">
           <AddSale
@@ -45,13 +45,13 @@ export default function SaleClientWrapper({
             onSaleChange={triggerRefresh}
           />
           <FilterDropdown
-            label="Status"
+            label="สถานะ"
             icon={<FilterIcon className="w-4 h-4 text-gray-600" />}
             options={statusOptions}
             onSelectFilter={setStatusFilter}
           />
           <FilterDropdown
-            label="Method"
+            label="วิธีชำระเงิน"
             icon={<FilterIcon className="w-4 h-4 text-gray-600" />}
             options={methodOptions}
             onSelectFilter={setMethodFilter}

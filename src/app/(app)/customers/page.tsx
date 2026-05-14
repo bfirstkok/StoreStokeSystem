@@ -12,9 +12,9 @@ export default function CustomersPage() {
 
   return (
     <div className="flex flex-col gap-3">
-      <div className="bg-white shadow-md p-4 rounded-md">
+      <div className="rounded-xl border border-gray-100 bg-white p-4 shadow-sm">
         <div className="flex flex-row justify-between items-center gap-3">
-          <h1 className="text-lg pb-2 tracking-wide">Customers</h1>
+          <h1 className="text-lg font-semibold tracking-wide text-gray-900">ลูกค้า</h1>
           <div className="flex flex-row gap-4 tracking-wide">
             <AddCustomer onOrderChange={triggerRefresh} />
           </div>

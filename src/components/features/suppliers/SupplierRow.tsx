@@ -45,7 +45,7 @@ export default function SupplierRow({
         setIsCopied(false);
       }, 2000);
     } else {
-      alert("Failed to copy phone number.");
+      alert("คัดลอกเบอร์โทรไม่สำเร็จ");
     }
   };
 
@@ -61,7 +61,7 @@ export default function SupplierRow({
       const result = await updateSupplier(null, formData);
       if (result.success) {
         setIsEditing(false);
-        alert("Supplier updated!");
+        alert("อัปเดตผู้จำหน่ายแล้ว");
         onOrderChange();
       } else {
         alert(result.message);
@@ -70,12 +70,12 @@ export default function SupplierRow({
   };
 
   const handleDelete = () => {
-    if (!confirm("Are you sure? This will delete the supplier.")) return;
+    if (!confirm("ยืนยันลบผู้จำหน่ายนี้หรือไม่?")) return;
 
     startTransition(async () => {
       const result = await deleteSupplier(supplier.id);
       if (result.success) {
-        alert("Supplier deleted!");
+        alert("ลบผู้จำหน่ายแล้ว");
         onOrderChange();
       } else {
         alert(result.message);
@@ -133,7 +133,7 @@ export default function SupplierRow({
             }`}
           >
             {isCopied
-              ? "Copied!"
+              ? "คัดลอกแล้ว"
               : formatDisplayPhoneNumber(supplier.contact_number)}
           </span>
         )}

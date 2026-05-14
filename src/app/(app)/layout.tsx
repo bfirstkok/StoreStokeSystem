@@ -7,22 +7,18 @@ import Topbar from "@/components/layout/Topbar";
 const AppLayout = ({ children }: { children: React.ReactNode }) => {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
-  let mainContentClasses = "md:ml-60 w-full h-screen overflow-y-auto";
-
-  if (isMobileSidebarOpen) {
-    mainContentClasses += " overflow-hidden";
-  }
-
   return (
-    <div className="flex">
+    <div className="min-h-screen bg-slate-50 text-gray-900">
       <Sidebar
         isOpen={isMobileSidebarOpen}
         setIsOpen={setIsMobileSidebarOpen}
       />
 
-      <div className={mainContentClasses}>
+      <div className="min-h-screen w-full md:pl-64">
         <Topbar onMenuClick={() => setIsMobileSidebarOpen(true)} />
-        <main className="pt-3 mx-3 md:mx-0">{children}</main>
+        <main className="mx-auto w-full max-w-[1500px] px-3 py-4 sm:px-5 lg:px-6">
+          {children}
+        </main>
       </div>
     </div>
   );

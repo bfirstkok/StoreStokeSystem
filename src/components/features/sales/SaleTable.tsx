@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { getPaginatedSales } from "@/lib/actions/sales";
 import Pagination, { PAGE_SIZE } from "@/components/ui/Pagination";
@@ -16,7 +16,7 @@ interface SaleTableProps {
   onOrderChange: () => void;
 }
 
-export default function SaleTable({
+function SaleTableContent({
   refreshKey,
   statusFilter,
   methodFilter,
@@ -100,5 +100,13 @@ export default function SaleTable({
         </div>
       </div>
     </>
+  );
+}
+
+export default function SaleTable(props: SaleTableProps) {
+  return (
+    <Suspense fallback={null}>
+      <SaleTableContent {...props} />
+    </Suspense>
   );
 }

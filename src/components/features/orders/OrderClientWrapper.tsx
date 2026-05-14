@@ -29,7 +29,7 @@ export default function OrderClientWrapper({
   return (
     <div className="bg-white shadow-md p-4 rounded-md">
       <div className="flex flex-row justify-between items-center">
-        <h1 className="sm:text-lg tracking-wide">Orders</h1>
+        <h1 className="sm:text-lg tracking-wide">คำสั่งซื้อ</h1>
         <div className="flex flex-row gap-4 tracking-wide">
           <AddOrder
             products={products}
