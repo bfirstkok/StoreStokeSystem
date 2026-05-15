@@ -2,7 +2,6 @@
 
 import { Product } from "@/lib/types";
 import ProductOverviewTab from "@/components/features/product/ProductOverviewTab";
-import ProductPurchaseTab from "@/components/features/product/ProductPurchaseTab";
 import ProductHistoryTab from "@/components/features/product/ProductHistoryTab";
 import { StockStats } from "@/lib/types";
 
@@ -22,7 +21,7 @@ export default function Tabs({
   return (
     <div>
       <div className="flex flex-row items-center justify-between sm:justify-start gap-8 mt-3 border-b border-gray-300">
-        {["overview", "purchases", "history"].map((tab) => (
+        {["overview", "history"].map((tab) => (
           <button
             key={tab}
             type="button"
@@ -42,7 +41,6 @@ export default function Tabs({
         {activeTab === "overview" && (
           <ProductOverviewTab product={product} stockStats={stockStats} />
         )}
-        {activeTab === "purchases" && <ProductPurchaseTab product={product} />}
         {activeTab === "history" && <ProductHistoryTab product={product} />}
       </div>
     </div>

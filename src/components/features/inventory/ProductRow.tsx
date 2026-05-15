@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { formatCurrency, getStockStatus } from "@/lib/utils/formatters";
+import { getStockStatus } from "@/lib/utils/formatters";
+import { formatProductCategory } from "@/lib/utils/product-category";
 import { Product } from "@/lib/types";
 interface ProductRowProps {
   product: Product;
@@ -22,13 +23,7 @@ export default function ProductRow({ product }: ProductRowProps) {
         </Link>
       </td>
       <td className="py-2 px-2 md:px-4 hidden lg:table-cell">
-        {product.product_type}
-      </td>
-      <td className="py-2 px-2 md:px-4 hidden lg:table-cell">
-        {formatCurrency(product.buy_price)}
-      </td>
-      <td className="py-2 px-2 md:px-4 hidden md:table-cell">
-        {formatCurrency(product.sell_price)}
+        {formatProductCategory(product.product_category)}
       </td>
       <td className="py-2 px-2 md:px-4">{product.amount_stock}</td>
       <td className={`py-2 px-2 md:px-4 ${status.color}`}>{status.label}</td>

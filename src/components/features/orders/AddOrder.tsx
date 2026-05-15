@@ -23,6 +23,7 @@ import {
   OrderItemState,
 } from "@/lib/types";
 import { ORDER_STATUSES } from "@/lib/constants";
+import { formatProductCategory } from "@/lib/utils/product-category";
 
 const initialState: FormState = { success: false, message: "" };
 const initialItemState: OrderItemState = {
@@ -64,7 +65,7 @@ export default function AddOrder({ products, suppliers, onOrderChange }: AddOrde
       .map((p) => ({
         id: p.id,
         main_text: p.product_name,
-        secondary_text: p.product_type,
+        secondary_text: formatProductCategory(p.product_category),
       }));
   }, [products, selectedSupplierId]);
 
@@ -101,7 +102,7 @@ export default function AddOrder({ products, suppliers, onOrderChange }: AddOrde
       setCurrentItem({
         product_id: product.id,
         product_name: product.product_name,
-        product_type: product.product_type,
+        product_type: product.product_category,
         quantity: "1",
         cost_per_item: String(product.buy_price || 0),
       });

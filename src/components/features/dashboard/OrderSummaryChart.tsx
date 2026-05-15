@@ -1,32 +1,29 @@
 "use client";
 
 import {
-  LineChart,
+  CartesianGrid,
+  Legend,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
 } from "recharts";
 import { ChartData } from "@/lib/types";
 
 export default function OrderSummaryChart({ data }: { data: ChartData[] }) {
-  return (
-    <div className="bg-white shadow-md p-6 rounded-xl w-full">
-      <h2 className="text-lg mb-6">สรุปรายการรับเข้า</h2>
+  const showDots = data.length <= 14;
 
-      <div className="h-[300px] w-full">
+  return (
+    <div className="h-full w-full rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+      <h2 className="text-base font-semibold text-gray-950">ความเคลื่อนไหวคลัง</h2>
+
+      <div className="mt-5 h-[300px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart
             data={data}
-            margin={{
-              top: 5,
-              right: 30,
-              left: -25,
-              bottom: 5,
-            }}
+            margin={{ top: 8, right: 12, left: -18, bottom: 8 }}
           >
             <CartesianGrid
               strokeDasharray="3 3"
@@ -39,7 +36,7 @@ export default function OrderSummaryChart({ data }: { data: ChartData[] }) {
               tickLine={false}
               tick={{ fill: "#6B7280", fontSize: 12 }}
               dy={10}
-              interval={0}
+              minTickGap={18}
             />
             <YAxis
               axisLine={false}
@@ -53,14 +50,14 @@ export default function OrderSummaryChart({ data }: { data: ChartData[] }) {
                 boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
               }}
             />
-            <Legend iconType="circle" wrapperStyle={{ paddingTop: "20px" }} />
+            <Legend iconType="circle" wrapperStyle={{ paddingTop: "16px" }} />
             <Line
               type="monotone"
               dataKey="ordered"
-              name="สั่งซื้อ"
+              name="ขอเข้าคลัง"
               stroke="#F59E0B"
               strokeWidth={3}
-              dot={{ r: 4, strokeWidth: 2 }}
+              dot={showDots ? { r: 4, strokeWidth: 2 } : false}
               activeDot={{ r: 6 }}
             />
             <Line
@@ -69,7 +66,7 @@ export default function OrderSummaryChart({ data }: { data: ChartData[] }) {
               name="รับเข้าแล้ว"
               stroke="#0EA5E9"
               strokeWidth={3}
-              dot={{ r: 4, strokeWidth: 2 }}
+              dot={showDots ? { r: 4, strokeWidth: 2 } : false}
             />
           </LineChart>
         </ResponsiveContainer>

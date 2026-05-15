@@ -25,6 +25,7 @@ import {
   SaleItem,
 } from "@/lib/types";
 import { PAYMENT_METHODS, PAYMENT_STATUSES } from "@/lib/constants";
+import { formatProductCategory } from "@/lib/utils/product-category";
 
 const initialState: FormState = { success: false, message: "" };
 
@@ -78,7 +79,7 @@ export default function AddSale({
   const productOptions = (products || []).map((p) => ({
     id: String(p.id),
     main_text: p.product_name,
-    secondary_text: `Type: ${p.product_type} | Stok: ${
+    secondary_text: `หมวดหมู่: ${formatProductCategory(p.product_category)} | สต็อก: ${
       p.amount_stock
     } | ${formatCurrency(p.sell_price)}`,
   }));

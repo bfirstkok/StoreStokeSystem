@@ -1,5 +1,9 @@
 import type { NextConfig } from "next";
 
+const supabaseHostname = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
+  : "cfguemkkbsqkftonksbe.supabase.co";
+
 const nextConfig: NextConfig = {
   // devIndicators:false,
   async redirects() {
@@ -25,7 +29,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "xrlacnmgrlzodrwjrmvi.supabase.co",
+        hostname: supabaseHostname,
       },
     ],
   },

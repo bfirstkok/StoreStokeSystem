@@ -99,7 +99,11 @@ export default function AddProduct({
             options={supplierOptions}
             onSelect={setSelectedSupplierId}
             value={selectedSupplierID}
-            required
+            placeholder={
+              supplierOptions.length > 0
+                ? "เลือกผู้จำหน่าย ถ้ามี..."
+                : "ยังไม่มีผู้จำหน่าย"
+            }
           />
           <LabeledInput
             label="ชื่อวัสดุ/อุปกรณ์"
@@ -107,14 +111,6 @@ export default function AddProduct({
             name="product_name"
             type="text"
             placeholder="เช่น ปูนซีเมนต์, สว่านไฟฟ้า"
-            required
-          />
-          <LabeledInput
-            label="ประเภทวัสดุ"
-            id="type"
-            name="product_type"
-            type="text"
-            placeholder="เช่น ปูน, เหล็ก, เครื่องมือช่าง"
             required
           />
           <LabeledSelect label="หมวดหมู่" id="category" name="product_category" defaultValue="" required>
@@ -128,8 +124,6 @@ export default function AddProduct({
             ))}
           </LabeledSelect>
           <LabeledInput label="จำนวน" id="amountStock" name="amount_stock" type="number" placeholder="เช่น 50" min={0} required />
-          <LabeledInput label="ต้นทุน" id="priceBuy" name="buy_price" type="number" placeholder="เช่น 75000" min={0} required />
-          <LabeledInput label="ราคาประเมิน/เบิกจ่าย" id="priceSell" name="sell_price" type="number" placeholder="เช่น 149000" min={0} required />
         </form>
       </Modal>
     </>

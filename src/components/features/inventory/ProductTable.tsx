@@ -50,9 +50,7 @@ function ProductTableContent({
             <tr>
               <th className="py-2 px-2 md:px-4 hidden md:table-cell">ผู้จำหน่าย</th>
               <th className="py-2 px-2 md:px-4">วัสดุ/อุปกรณ์</th>
-              <th className="py-2 px-2 md:px-4 hidden lg:table-cell">ประเภท</th>
-              <th className="py-2 px-2 md:px-4 hidden lg:table-cell">ต้นทุน</th>
-              <th className="py-2 px-2 md:px-4 hidden md:table-cell">ราคาประเมิน</th>
+              <th className="py-2 px-2 md:px-4 hidden lg:table-cell">หมวดหมู่</th>
               <th className="py-2 px-2 md:px-4">จำนวน</th>
               <th className="py-2 px-2 md:px-4">สถานะ</th>
             </tr>
@@ -63,7 +61,7 @@ function ProductTableContent({
             ))}
             {products.length === 0 && (
               <tr>
-                <td colSpan={7} className="py-8 text-center text-gray-500 italic">
+                <td colSpan={5} className="py-8 text-center text-gray-500 italic">
                   ไม่พบรายการวัสดุ
                 </td>
               </tr>

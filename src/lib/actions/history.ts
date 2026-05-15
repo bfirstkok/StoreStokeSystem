@@ -1,85 +1,104 @@
 "use server";
 
 import { createClientServer } from "@/lib/supabase/server";
-import { HistoryItem, PurchaseQueryRow, SaleQueryRow } from "@/lib/types";
+import { HistoryItem, StockMovementHistoryItem } from "@/lib/types";
+import { isMissingSchemaTableError } from "@/lib/utils/supabase-errors";
+
+type StockMovementRow = {
+  id: number;
+  product_id?: number;
+  movement_type: "in" | "out";
+  quantity: number;
+  note: string | null;
+  created_at: string;
+  actor: {
+    name: string | null;
+    email: string | null;
+  } | null;
+  product?: {
+    id: number;
+    product_name: string | null;
+    product_category: string | null;
+  } | null;
+};
+
+function mapStockMovement(item: StockMovementRow): HistoryItem {
+  return {
+    id: `STK-${item.id}`,
+    date: item.created_at,
+    type: item.movement_type,
+    quantity: item.quantity,
+    note: item.note,
+    actor_name: item.actor?.name || item.actor?.email || "ไม่ทราบผู้ทำรายการ",
+    actor_email: item.actor?.email ?? null,
+  };
+}
 
 export async function getProductHistory(
   productId: number
 ): Promise<HistoryItem[]> {
   const supabase = await createClientServer();
 
-  const { data: purchaseData } = await supabase
-    .from("order_items")
+  const { data, error } = await supabase
+    .from("stock_movements")
     .select(
       `
+      id,
+      movement_type,
       quantity,
-      cost_per_item,
-      order:orders (
-        id,
-        po_code,
-        created_at,
-        status,
-        supplier:suppliers (supplier_name)
-      )
+      note,
+      created_at,
+      actor:users ( name, email )
     `
     )
-    .eq("product_id", productId);
+    .eq("product_id", productId)
+    .order("created_at", { ascending: false });
 
-  const { data: salesData } = await supabase
-    .from("sales_items")
+  if (error) {
+    if (isMissingSchemaTableError(error)) return [];
+    console.error("Error fetching stock movement history:", error.message);
+    return [];
+  }
+
+  return ((data as unknown as StockMovementRow[]) || []).map(mapStockMovement);
+}
+
+export async function getStockMovementHistory(
+  limit = 100
+): Promise<StockMovementHistoryItem[]> {
+  const supabase = await createClientServer();
+
+  const { data, error } = await supabase
+    .from("stock_movements")
     .select(
       `
+      id,
+      product_id,
+      movement_type,
       quantity,
-      price_at_sale,
-      sale:sales (
-        id,
-        sale_date,
-        invoice_code,
-        customer:customers (name)
-      )
+      note,
+      created_at,
+      actor:users ( name, email ),
+      product:products ( id, product_name, product_category )
     `
     )
-    .eq("product_id", productId);
+    .order("created_at", { ascending: false })
+    .limit(limit);
 
-  const purchases: HistoryItem[] = (
-    (purchaseData as unknown as PurchaseQueryRow[]) || []
-  )
-    .map((item) => {
-      if (!item.order) return null;
+  if (error) {
+    if (isMissingSchemaTableError(error)) return [];
+    console.error("Error fetching stock movement history:", error.message);
+    return [];
+  }
 
-      return {
-        id: item.order.po_code || `PO-${item.order.id}`,
-        date: item.order.created_at,
-        type: "purchase",
-        quantity: item.quantity,
-        price_per_unit: item.cost_per_item,
-        total_price: item.quantity * item.cost_per_item,
-        status: item.order.status,
-        party_name: item.order.supplier?.supplier_name || "Unknown Supplier",
-      };
-    })
-    .filter((item): item is HistoryItem => item !== null);
+  return ((data as unknown as StockMovementRow[]) || []).map((item) => {
+    const movement = mapStockMovement(item);
 
-  const sales: HistoryItem[] = ((salesData as unknown as SaleQueryRow[]) || [])
-    .map((item) => {
-      if (!item.sale) return null;
-
-      return {
-        id: item.sale.invoice_code || `SALE-${item.sale.id}`,
-        date: item.sale.sale_date,
-        type: "sale",
-        quantity: item.quantity,
-        price_per_unit: item.price_at_sale,
-        total_price: item.quantity * item.price_at_sale,
-        status: "Completed",
-        party_name: item.sale.customer?.name || "General Customer",
-      };
-    })
-    .filter((item): item is HistoryItem => item !== null);
-
-  const history = [...purchases, ...sales].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
-
-  return history;
+    return {
+      ...movement,
+      product_id: item.product?.id ?? item.product_id ?? 0,
+      product_name: item.product?.product_name || "ไม่ทราบวัสดุ",
+      product_category: item.product?.product_category ?? null,
+    };
+  });
 }

@@ -112,6 +112,8 @@ export type ProductOption = {
   product_name: string;
   /** The type or variation of the product. */
   product_type: string;
+  /** The category the product belongs to. */
+  product_category: string;
   /** The cost price of the product. */
   buy_price: number;
   /** The selling price of the product. */
@@ -538,68 +540,31 @@ export type StockStats = {
 // History
 // -----------------------------------------------------------------------------------------------------------------------------
 
-/**
- * Represents a single transaction record in the product's history log.
- * This combines data from both Purchase Orders (incoming) and Sales (outgoing).
- */
+/** Represents a single manual stock-in or stock-out record. */
 export interface HistoryItem {
-  /** The unique display identifier for the transaction (e.g., PO code or Invoice ID). */
+  /** The unique display identifier for the stock movement. */
   id: string;
-  /** The timestamp when the transaction occurred (ISO string). */
+  /** The timestamp when the movement occurred (ISO string). */
   date: string;
-  /** The type of transaction: 'purchase' for restocking, 'sale' for selling to customers. */
-  type: "purchase" | "sale";
-  /** The number of units involved in the transaction. */
+  /** The movement type: 'in' for stock-in, 'out' for stock-out. */
+  type: "in" | "out";
+  /** The number of units involved in the movement. */
   quantity: number;
-  /** The cost or price per single unit at the time of transaction. */
-  price_per_unit: number;
-  /** The total monetary value of the transaction line item (quantity * price). */
-  total_price: number;
-  /** The current status of the transaction (e.g., 'Completed', 'Pending', 'Shipped'). */
-  status: string;
-  /** The name of the counterparty involved (Supplier Name or Customer Name). */
-  party_name: string;
+  /** Optional note entered by the user. */
+  note: string | null;
+  /** The display name of the user who made the movement. */
+  actor_name: string;
+  /** The email of the user who made the movement. */
+  actor_email: string | null;
 }
 
-/**
- * Represents the raw database structure returned when querying purchase history.
- * This reflects the nested join structure between `order_items`, `orders`, and `suppliers`.
- * Used internally to type-cast Supabase query results before mapping them to `HistoryItem`.
- */
-export type PurchaseQueryRow = {
-  /** The quantity purchased in this line item. */
-  quantity: number;
-  /** The cost per unit recorded at the time of purchase. */
-  cost_per_item: number;
-  /** The parent order details (joined relation). */
-  order: {
-    id: number;
-    po_code: string | null;
-    created_at: string;
-    status: string;
-    supplier: {
-      supplier_name: string;
-    } | null;
-  } | null;
-};
+/** Represents a stock movement row for the global history page. */
+export interface StockMovementHistoryItem extends HistoryItem {
+  /** The product id connected to this movement. */
+  product_id: number;
+  /** The product name connected to this movement. */
+  product_name: string;
+  /** The product category connected to this movement. */
+  product_category: string | null;
+}
 
-/**
- * Represents the raw database structure returned when querying sales history.
- * This reflects the nested join structure between `sales_items`, `sales`, and `customers`.
- * Used internally to type-cast Supabase query results before mapping them to `HistoryItem`.
- */
-export type SaleQueryRow = {
-  /** The quantity sold in this line item. */
-  quantity: number;
-  /** The price per unit recorded at the time of sale. */
-  price_at_sale: number;
-  /** The parent sale details (joined relation). */
-  sale: {
-    id: number;
-    sale_date: string;
-    invoice_code: string | null;
-    customer: {
-      name: string;
-    } | null;
-  } | null;
-};

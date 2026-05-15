@@ -5,6 +5,7 @@ import {
   formatCurrency,
   formatDisplayPhoneNumber,
 } from "@/lib/utils/formatters";
+import { formatProductCategory } from "@/lib/utils/product-category";
 
 export type SearchResult = {
   id: string | number;
@@ -49,7 +50,7 @@ export async function globalSearch(query: string): Promise<SearchResult[]> {
     results.push({
       id: p.id,
       title: p.product_name,
-      subtitle: `${p.product_type} • ${p.product_category}`,
+      subtitle: formatProductCategory(p.product_category),
       type: "product",
       url: `/product/${p.id}`,
     });

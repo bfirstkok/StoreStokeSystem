@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getProductHistory } from "@/lib/actions/history";
-import { formatCurrency, formatDate, getStatusColor } from "@/lib/utils/formatters";
+import { formatDate } from "@/lib/utils/formatters";
 import { Product, HistoryItem } from "@/lib/types";
 
 export default function ProductHistoryTab({ product }: { product: Product }) {
@@ -26,7 +26,7 @@ export default function ProductHistoryTab({ product }: { product: Product }) {
   if (loading) {
     return (
       <div className="p-8 text-center text-gray-500 animate-pulse bg-gray-50 rounded-lg">
-        Loading history data...
+        กำลังโหลดประวัติ...
       </div>
     );
   }
@@ -34,7 +34,7 @@ export default function ProductHistoryTab({ product }: { product: Product }) {
   if (history.length === 0) {
     return (
       <div className="p-8 text-center text-gray-500 border border-dashed border-gray-300 rounded-lg">
-        No transaction history found for this product.
+        ยังไม่มีประวัติรับเข้า/เอาออกสำหรับวัสดุนี้
       </div>
     );
   }
@@ -42,9 +42,9 @@ export default function ProductHistoryTab({ product }: { product: Product }) {
   return (
     <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
       <div className="mb-6 border-b pb-4">
-        <h2 className="text-lg font-bold text-gray-900">Transaction History</h2>
+        <h2 className="text-lg font-bold text-gray-900">ประวัติสต็อก</h2>
         <p className="text-sm text-gray-500 mt-1">
-          Track all purchase orders (Restock) and sales activity for{" "}
+          ดูว่าใครรับเข้า เอาออก และบันทึกหมายเหตุของ{" "}
           <span className="font-semibold text-gray-900">
             {product.product_name}
           </span>
@@ -56,15 +56,11 @@ export default function ProductHistoryTab({ product }: { product: Product }) {
           <table className="w-full text-left text-sm">
             <thead className="bg-gray-50 border-b border-gray-100 text-gray-500 uppercase tracking-wider text-xs">
               <tr>
-                <th className="px-6 py-3 font-semibold">Date</th>
-                <th className="px-6 py-3 font-semibold">Activity</th>
-                <th className="px-6 py-3 font-semibold">Party</th>
-                <th className="px-6 py-3 font-semibold text-right">Qty</th>
-                <th className="px-6 py-3 font-semibold text-right">
-                  Unit Price
-                </th>
-                <th className="px-6 py-3 font-semibold text-right">Total</th>
-                <th className="px-6 py-3 font-semibold text-center">Status</th>
+                <th className="px-6 py-3 font-semibold">วันที่</th>
+                <th className="px-6 py-3 font-semibold">รายการ</th>
+                <th className="px-6 py-3 font-semibold">ผู้ทำรายการ</th>
+                <th className="px-6 py-3 font-semibold">หมายเหตุ</th>
+                <th className="px-6 py-3 font-semibold text-right">จำนวน</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -80,12 +76,12 @@ export default function ProductHistoryTab({ product }: { product: Product }) {
                   <td className="px-6 py-3">
                     <span
                       className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${
-                        item.type === "sale"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-blue-100 text-blue-700"
+                        item.type === "out"
+                          ? "bg-red-100 text-red-700"
+                          : "bg-green-100 text-green-700"
                       }`}
                     >
-                      {item.type === "sale" ? "Sold" : "Restock"}
+                      {item.type === "out" ? "ของออก" : "รับเข้า"}
                     </span>
                     <div className="text-[10px] text-gray-400 mt-1">
                       {item.id}
@@ -93,34 +89,25 @@ export default function ProductHistoryTab({ product }: { product: Product }) {
                   </td>
 
                   <td className="px-6 py-3 font-medium text-gray-800">
-                    {item.party_name}
+                    {item.actor_name}
+                    {item.actor_email && (
+                      <div className="text-xs font-normal text-gray-400">
+                        {item.actor_email}
+                      </div>
+                    )}
+                  </td>
+
+                  <td className="px-6 py-3 text-gray-600">
+                    {item.note || "-"}
                   </td>
 
                   <td
                     className={`px-6 py-3 text-right font-medium ${
-                      item.type === "sale" ? "text-red-600" : "text-green-600"
+                      item.type === "out" ? "text-red-600" : "text-green-600"
                     }`}
                   >
-                    {item.type === "sale" ? "-" : "+"}
+                    {item.type === "out" ? "-" : "+"}
                     {item.quantity}
-                  </td>
-
-                  <td className="px-6 py-3 text-right text-gray-600">
-                    {formatCurrency(item.price_per_unit)}
-                  </td>
-
-                  <td className="px-6 py-3 text-right font-bold text-gray-900">
-                    {formatCurrency(item.total_price)}
-                  </td>
-
-                  <td className="px-6 py-3 text-center">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
-                        item.status
-                      )}`}
-                    >
-                      {item.status}
-                    </span>
                   </td>
                 </tr>
               ))}

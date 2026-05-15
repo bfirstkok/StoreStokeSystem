@@ -1,8 +1,110 @@
 "use server";
 
 import { createClientServer } from "@/lib/supabase/server";
-import { ChartData, DashboardCardStats } from "@/lib/types";
+import { ChartData } from "@/lib/types";
 import { LOW_STOCK_THRESHOLD } from "@/lib/constants";
+
+type OrderRow = {
+  id: number;
+  total_cost: number | null;
+  status: string | null;
+  created_at: string | null;
+};
+
+function getChartBuckets(period: string) {
+  const now = new Date();
+
+  if (period === "weekly") {
+    return Array.from({ length: 7 }, (_, index) => {
+      const date = new Date(now);
+      date.setHours(0, 0, 0, 0);
+      date.setDate(now.getDate() - (6 - index));
+
+      return {
+        key: date.toISOString().slice(0, 10),
+        name: date.toLocaleDateString("en-US", { weekday: "short" }),
+        sales: 0,
+        purchase: 0,
+        ordered: 0,
+        delivered: 0,
+      };
+    });
+  }
+
+  if (period === "yearly") {
+    const year = now.getFullYear();
+
+    return Array.from({ length: 12 }, (_, month) => {
+      const date = new Date(year, month, 1);
+
+      return {
+        key: `${year}-${String(month + 1).padStart(2, "0")}`,
+        name: date.toLocaleDateString("en-US", { month: "short" }),
+        sales: 0,
+        purchase: 0,
+        ordered: 0,
+        delivered: 0,
+      };
+    });
+  }
+
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  return Array.from({ length: daysInMonth }, (_, index) => {
+    const day = index + 1;
+
+    return {
+      key: `${year}-${String(month + 1).padStart(2, "0")}-${String(
+        day
+      ).padStart(2, "0")}`,
+      name: String(day),
+      sales: 0,
+      purchase: 0,
+      ordered: 0,
+      delivered: 0,
+    };
+  });
+}
+
+function getBucketKey(dateValue: string | null, period: string) {
+  if (!dateValue) return null;
+
+  const date = new Date(dateValue);
+  if (Number.isNaN(date.getTime())) return null;
+
+  if (period === "yearly") {
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}`;
+  }
+
+  return date.toISOString().slice(0, 10);
+}
+
+function buildChartData(
+  period: string,
+  orders: OrderRow[]
+): ChartData[] {
+  const buckets = getChartBuckets(period);
+  const bucketMap = new Map(buckets.map((bucket) => [bucket.key, bucket]));
+
+  orders.forEach((order) => {
+    const key = getBucketKey(order.created_at, period);
+    const bucket = key ? bucketMap.get(key) : null;
+    if (!bucket) return;
+
+    bucket.purchase += Number(order.total_cost || 0);
+    bucket.ordered += 1;
+    if (order.status === "Completed") {
+      bucket.delivered += 1;
+    }
+  });
+
+  return buckets.map(({ key: _key, ...bucket }) => bucket);
+}
 
 export async function getDashboardStats(period: string = "monthly") {
   const supabase = await createClientServer();
@@ -11,83 +113,21 @@ export async function getDashboardStats(period: string = "monthly") {
   } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const { data: salesStats, error: salesError } = await supabase
-    .rpc("get_dashboard_card_stats", { p_user_id: user.id })
-    .single<DashboardCardStats>();
-
-  if (salesError) {
-    console.error("Error fetching dashboard card stats:", salesError.message);
-  }
-
-  const totalRevenue = salesStats?.total_revenue || 0;
-  const totalProfit = salesStats?.total_profit || 0;
-  const totalCost = salesStats?.total_cost || 0;
-  const totalQuantitySold = salesStats?.total_qty_sold || 0;
-
   const { data: productsData } = await supabase
     .from("products")
     .select(
-      "id, product_name, amount_stock, product_category, product_image, sell_price"
-    );
+      "id, product_name, amount_stock, product_category, product_image"
+    )
+    .eq("user_id", user.id);
 
   const quantityInHand =
     productsData?.reduce((sum, p) => sum + p.amount_stock, 0) || 0;
   const uniqueCategories = new Set(productsData?.map((p) => p.product_category))
     .size;
-
-  const { data: orders } = await supabase
-    .from("orders")
-    .select("id, total_cost, status, created_at");
-
-  const totalPurchaseOrders =
-    orders?.reduce((sum, p) => sum + p.total_cost, 0) || 0;
-  const shippedOrders =
-    orders?.filter((p) => p.status === "Shipped").length || 0;
-  const pendingOrders =
-    orders?.filter((p) => p.status === "Pending").length || 0;
-  const totalOrders = orders?.length || 0;
-
-  const { data: incomingItems } = await supabase
-    .from("order_items")
-    .select(
-      `
-      quantity,
-      order:orders!inner(status)
-    `
-    )
-    .in("orders.status", ["Pending", "Shipped"]);
-
-  const toBeReceived =
-    incomingItems?.reduce((sum, item) => sum + item.quantity, 0) || 0;
-
-  const { count: supplierCount } = await supabase
-    .from("suppliers")
-    .select("*", { count: "exact", head: true });
-
-  const { data: salesItems } = await supabase
-    .from("sales_items")
-    .select("product_id, quantity, sale:sales!inner(user_id)")
-    .eq("sale.user_id", user.id);
-
-  const productSalesMap = new Map<string, number>();
-  salesItems?.forEach((item) => {
-    const pid = String(item.product_id);
-    const qty = Number(item.quantity);
-    productSalesMap.set(pid, (productSalesMap.get(pid) || 0) + qty);
-  });
-
-  const bestSelling =
-    productsData
-      ?.map((p) => ({
-        id: String(p.id),
-        name: p.product_name,
-        remainingStock: p.amount_stock,
-        price: p.sell_price,
-        soldQuantity: productSalesMap.get(String(p.id)) || 0,
-      }))
-      .filter((p) => p.soldQuantity > 0)
-      .sort((a, b) => b.soldQuantity - a.soldQuantity)
-      .slice(0, 5) || [];
+  const productCount = productsData?.length || 0;
+  const inStockProductCount =
+    productsData?.filter((product) => Number(product.amount_stock || 0) > 0)
+      .length || 0;
 
   const lowStock =
     productsData
@@ -100,41 +140,31 @@ export async function getDashboardStats(period: string = "monthly") {
         image: p.product_image,
       })) || [];
 
-  const { data: chartData, error: chartError } = await supabase.rpc(
-    "get_dashboard_chart_data",
-    {
-      p_user_id: user.id,
-      p_period: period,
-    }
-  );
-
-  if (chartError) {
-    console.error("Error fetching chart data:", chartError.message);
-  }
+  const chartData = buildChartData(period, []);
 
   return {
     sales: {
-      revenue: totalRevenue,
-      profit: totalProfit,
-      cost: totalCost,
-      quantitySold: totalQuantitySold,
+      revenue: 0,
+      profit: 0,
+      cost: 0,
+      quantitySold: 0,
     },
     inventory: {
       quantityInHand: quantityInHand,
-      toBeReceived: toBeReceived,
+      toBeReceived: 0,
     },
     purchase: {
-      cost: totalPurchaseOrders,
-      purchase: totalOrders,
-      shipped: shippedOrders,
-      pending: pendingOrders,
+      cost: inStockProductCount,
+      purchase: productCount,
+      shipped: quantityInHand,
+      pending: lowStock.length,
     },
     products: {
-      suppliers: supplierCount || 0,
+      suppliers: productCount,
       categories: uniqueCategories,
     },
-    bestSelling,
+    bestSelling: [],
     lowStock,
-    charts: (chartData as ChartData[]) || [],
+    charts: chartData,
   };
 }

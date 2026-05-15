@@ -3,11 +3,19 @@ import { ProductStats } from "@/lib/types";
 
 export default function ProductSummary({ data }: { data: ProductStats }) {
   return (
-    <div className="bg-white shadow-md p-6 rounded-xl w-full md:w-1/3">
-      <h1 className="text-lg pb-4">สรุปสินค้า</h1>
-      <div className="flex flex-row justify-around items-center divide-x divide-gray-100">
-        <DashboardStat title="ซัพพลายเออร์" value={data.suppliers} icon="/suppliers.svg" />
-        <DashboardStat title="หมวดหมู่" value={data.categories} icon="/categories.svg" />
+    <div className="h-full w-full rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+      <h2 className="text-base font-semibold text-gray-950">สรุปวัสดุ</h2>
+      <div className="mt-5 grid grid-cols-2 divide-x divide-gray-100">
+        <DashboardStat
+          title="รายการวัสดุ"
+          value={data.suppliers}
+          icon="/suppliers.svg"
+        />
+        <DashboardStat
+          title="หมวดหมู่"
+          value={data.categories}
+          icon="/categories.svg"
+        />
       </div>
     </div>
   );

@@ -17,26 +17,26 @@ export default function LowStockList({
 
   return (
     <>
-      <div className="rounded-xl border border-gray-100 bg-white p-6 shadow-sm">
-        <div className="mb-4 flex flex-row items-center justify-between">
+      <div className="h-full rounded-lg border border-gray-100 bg-white p-5 shadow-sm">
+        <div className="mb-4 flex flex-row items-center justify-between gap-3">
           <div>
-            <h1 className="text-lg font-semibold text-gray-900">วัสดุใกล้หมด</h1>
+            <h2 className="text-base font-semibold text-gray-900">วัสดุใกล้หมด</h2>
             <p className="text-xs text-gray-500">รายการที่ควรเติมสต็อก</p>
           </div>
           <button
             onClick={() => setShowModal(true)}
-            className="cursor-pointer text-sm font-medium text-blue-600 hover:underline"
+            className="shrink-0 cursor-pointer text-sm font-medium text-blue-600 hover:underline"
           >
             ดูทั้งหมด
           </button>
         </div>
 
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
           {widgetProducts.map((product) => (
             <Link
               key={product.id}
               href={`/product/${product.id}`}
-              className="group flex flex-row items-center justify-between rounded-lg p-2 transition hover:bg-gray-50"
+              className="group flex flex-row items-center justify-between gap-3 rounded-lg p-2 transition hover:bg-gray-50"
             >
               <div className="flex min-w-0 flex-row items-center gap-3">
                 <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
@@ -48,20 +48,23 @@ export default function LowStockList({
                   />
                 </div>
                 <div className="min-w-0">
-                  <h2 className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-blue-600">
+                  <h3 className="truncate text-sm font-semibold text-gray-900 transition-colors group-hover:text-blue-600">
                     {product.name}
-                  </h2>
+                  </h3>
                   <p className="text-xs text-gray-500">
-                    คงเหลือ: <span className="font-medium text-gray-800">{product.remainingStock}</span>
+                    คงเหลือ:{" "}
+                    <span className="font-medium text-gray-800">
+                      {product.remainingStock}
+                    </span>
                   </p>
                 </div>
               </div>
               {product.remainingStock === 0 ? (
-                <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-600">
+                <span className="shrink-0 rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-600">
                   หมด
                 </span>
               ) : (
-                <span className="rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-700">
+                <span className="shrink-0 rounded-full bg-yellow-100 px-2 py-1 text-xs font-medium text-yellow-700">
                   ใกล้หมด
                 </span>
               )}
@@ -69,7 +72,7 @@ export default function LowStockList({
           ))}
 
           {widgetProducts.length === 0 && (
-            <p className="py-4 text-center text-sm text-gray-400">
+            <p className="py-12 text-center text-sm text-gray-400">
               สต็อกยังอยู่ในระดับปกติ
             </p>
           )}
@@ -95,7 +98,7 @@ export default function LowStockList({
             <Link
               key={product.id}
               href={`/product/${product.id}`}
-              className="group flex flex-row items-center justify-between rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50"
+              className="group flex flex-row items-center justify-between gap-3 rounded-lg border border-gray-200 p-3 transition hover:bg-gray-50"
             >
               <div className="flex min-w-0 flex-row items-center gap-4">
                 <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-md border border-gray-200 bg-gray-100">
@@ -107,16 +110,19 @@ export default function LowStockList({
                   />
                 </div>
                 <div className="min-w-0">
-                  <h2 className="truncate font-semibold text-gray-900 transition-colors group-hover:text-blue-600">
+                  <h3 className="truncate font-semibold text-gray-900 transition-colors group-hover:text-blue-600">
                     {product.name}
-                  </h2>
+                  </h3>
                   <p className="text-sm text-gray-500">
-                    สต็อก: <span className="font-bold text-red-600">{product.remainingStock}</span>
+                    สต็อก:{" "}
+                    <span className="font-bold text-red-600">
+                      {product.remainingStock}
+                    </span>
                   </p>
                 </div>
               </div>
 
-              <div className="text-right">
+              <div className="shrink-0 text-right">
                 {product.remainingStock === 0 ? (
                   <span className="rounded-full bg-red-100 px-2 py-1 text-xs font-bold text-red-600">
                     หมดสต็อก

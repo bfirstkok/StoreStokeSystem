@@ -3,6 +3,7 @@
 import Modal from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency } from "@/lib/utils/formatters";
+import { formatProductCategory } from "@/lib/utils/product-category";
 import { Order } from "@/lib/types";
 
 interface OrderItemsModalProps {
@@ -32,7 +33,7 @@ export default function OrderItemsModal({ order, onClose }: OrderItemsModalProps
               <span className="text-gray-600">จำนวน: {item.quantity}</span>
             </div>
             <div className="text-sm text-gray-500">
-              {item.product?.product_type} ({item.product?.product_category})
+              {formatProductCategory(item.product?.product_category)}
             </div>
             <div className="text-sm text-gray-500">
               ต้นทุน: {formatCurrency(item.cost_per_item)}

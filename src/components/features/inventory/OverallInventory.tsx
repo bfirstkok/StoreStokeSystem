@@ -1,11 +1,10 @@
 import StatCard from "@/components/ui/StatCard";
 import StatCardDouble from "@/components/ui/StatCardDouble";
-import { formatCurrencyShort } from "@/lib/utils/formatters";
 
 interface OverallInventoryProps {
   totalCategories: number;
   totalProducts: number;
-  totalInventoryValue: number;
+  totalQuantity: number;
   lowStockCount: number;
   noStockCount: number;
 }
@@ -13,7 +12,7 @@ interface OverallInventoryProps {
 export default function OverallInventory({
   totalCategories,
   totalProducts,
-  totalInventoryValue,
+  totalQuantity,
   lowStockCount,
   noStockCount,
 }: OverallInventoryProps) {
@@ -32,8 +31,8 @@ export default function OverallInventory({
           titleColor="text-yellow-700"
           valueA={totalProducts}
           descriptionA="สินค้าทั้งหมด"
-          valueB={formatCurrencyShort(totalInventoryValue)}
-          descriptionB="มูลค่าสต็อก"
+          valueB={totalQuantity}
+          descriptionB="จำนวนรวม"
         />
         <StatCardDouble
           title="แจ้งเตือนสต็อก"

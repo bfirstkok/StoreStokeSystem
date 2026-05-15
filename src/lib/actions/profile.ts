@@ -18,7 +18,7 @@ export async function getProfile(): Promise<User | null> {
       .from("users")
       .select("*")
       .eq("id", authUser.id)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error("Error fetching profile DB:", error);
@@ -28,6 +28,24 @@ export async function getProfile(): Promise<User | null> {
         name: "User",
         profile_picture: null,
       };
+    }
+
+    if (!profile) {
+      const fallbackProfile = {
+        id: authUser.id,
+        email: authUser.email!,
+        name:
+          (authUser.user_metadata?.display_name as string | undefined) ||
+          (authUser.user_metadata?.name as string | undefined) ||
+          "User",
+        profile_picture: null,
+      };
+
+      await supabase.from("users").upsert(fallbackProfile, {
+        onConflict: "id",
+      });
+
+      return fallbackProfile;
     }
 
     return {

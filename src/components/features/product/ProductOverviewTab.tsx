@@ -9,10 +9,12 @@ import { Product } from "@/lib/types";
 import { Button } from "@/components/ui/Button";
 import InfoRow from "@/components/ui/InfoRow";
 import LabeledInput from "@/components/ui/LabeledInput";
+import LabeledSelect from "@/components/ui/LabeledSelect";
 import ImageDropzone from "@/components/ui/ImageDropzone";
 import { EditIcon, DeleteIcon, SaveIcon, CloseIcon } from "@/components/icons";
+import { PRODUCT_CATEGORIES } from "@/lib/constants";
+import { formatProductCategory } from "@/lib/utils/product-category";
 import {
-  formatCurrency,
   formatDisplayPhoneNumber,
   formatPurchaseLink,
   formatToLocalPhone,
@@ -189,45 +191,25 @@ export default function ProductOverviewTab({
                     name="product_name"
                     defaultValue={product.product_name}
                   />
-                  <LabeledInput
-                    id="product_type"
-                    label="Type"
-                    name="product_type"
-                    defaultValue={product.product_type}
-                  />
-                  <LabeledInput
+                  <LabeledSelect
                     id="product_category"
                     label="Category"
                     name="product_category"
                     defaultValue={product.product_category}
-                  />
-                  <LabeledInput
-                    id="buy_price"
-                    label="Buy Price"
-                    name="buy_price"
-                    type="number"
-                    defaultValue={product.buy_price}
-                  />
-                  <LabeledInput
-                    id="sell_price"
-                    label="Sell Price"
-                    name="sell_price"
-                    type="number"
-                    defaultValue={product.sell_price}
-                  />
+                  >
+                    {PRODUCT_CATEGORIES.map((category) => (
+                      <option key={category.value} value={category.value}>
+                        {category.label}
+                      </option>
+                    ))}
+                  </LabeledSelect>
                 </>
               ) : (
                 <>
                   <InfoRow label="Product Name" value={product.product_name} />
-                  <InfoRow label="Type" value={product.product_type} />
-                  <InfoRow label="Category" value={product.product_category} />
                   <InfoRow
-                    label="Buy Price"
-                    value={formatCurrency(product.buy_price)}
-                  />
-                  <InfoRow
-                    label="Sell Price"
-                    value={formatCurrency(product.sell_price)}
+                    label="Category"
+                    value={formatProductCategory(product.product_category)}
                   />
                 </>
               )}

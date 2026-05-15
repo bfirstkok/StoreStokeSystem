@@ -1,8 +1,8 @@
 import {
   DashboardIcon,
   InventoryIcon,
-  SuppliersIcon,
   OrdersIcon,
+  ReportsIcon,
   SettingsIcon,
 } from "@/components/icons";
 import React from "react";
@@ -22,26 +22,32 @@ export const MAIN_NAV_LINKS: NavLink[] = [
   {
     href: "/dashboard",
     label: "แดชบอร์ด",
-    description: "ภาพรวมสต็อกและรับเข้า",
+    description: "ภาพรวมคลังวัสดุ",
     icon: DashboardIcon,
   },
   {
     href: "/inventory",
     label: "คลังวัสดุ",
-    description: "อุปกรณ์และวัสดุก่อสร้าง",
+    description: "รายการวัสดุและสต็อกคงเหลือ",
     icon: InventoryIcon,
   },
   {
-    href: "/orders",
-    label: "รับเข้า/จัดซื้อ",
-    description: "ใบสั่งซื้อและของเข้า",
+    href: "/stock-in",
+    label: "ขอเข้าคลัง",
+    description: "เพิ่มจำนวนวัสดุเข้าคลัง",
     icon: OrdersIcon,
   },
   {
-    href: "/suppliers",
-    label: "ผู้จำหน่าย",
-    description: "ร้านค้าและซัพพลายเออร์",
-    icon: SuppliersIcon,
+    href: "/stock-out",
+    label: "ของออกคลัง",
+    description: "ตัดจำนวนวัสดุออกจากคลัง",
+    icon: OrdersIcon,
+  },
+  {
+    href: "/history",
+    label: "ประวัติ",
+    description: "รายการรับเข้าและเอาออก",
+    icon: ReportsIcon,
   },
 ];
 
@@ -55,14 +61,14 @@ export const FOOTER_NAV_LINKS: NavLink[] = [
 ];
 
 export const PAYMENT_METHODS = [
+  { label: "ไม่ระบุ", value: "None" },
   { label: "เงินสด", value: "Cash" },
   { label: "โอนเงิน", value: "Transfer" },
-  { label: "QRIS", value: "QRIS" },
 ];
 
 export const PAYMENT_STATUSES = [
-  { label: "ชำระแล้ว", value: "Paid" },
-  { label: "ค้างชำระ", value: "Debt" },
+  { label: "บันทึกแล้ว", value: "Paid" },
+  { label: "รอดำเนินการ", value: "Debt" },
 ];
 
 export const ORDER_STATUSES = [

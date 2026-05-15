@@ -4,6 +4,7 @@ import { createClientServer } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { sanitizePhoneNumber } from "@/lib/utils/formatters";
 import { FormState } from "@/lib/types";
+import { isMissingSchemaTableError } from "@/lib/utils/supabase-errors";
 
 export async function getAllSuppliers() {
   const supabase = await createClientServer();
@@ -14,6 +15,7 @@ export async function getAllSuppliers() {
     .order("supplier_name");
 
   if (error) {
+    if (isMissingSchemaTableError(error)) return [];
     console.error("Error fetching all suppliers:", error.message);
     return [];
   }

@@ -3,6 +3,7 @@
 import Modal from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { formatCurrency } from "@/lib/utils/formatters";
+import { formatProductCategory } from "@/lib/utils/product-category";
 import { Sale } from "@/lib/types";
 
 interface SaleItemsModalProps {
@@ -32,7 +33,7 @@ export default function SaleItemsModal({ sale, onClose }: SaleItemsModalProps) {
               <span className="text-gray-600">Qty: {item.quantity}</span>
             </div>
             <div className="text-sm text-gray-500">
-              {item.product?.product_type} ({item.product?.product_category})
+              {formatProductCategory(item.product?.product_category)}
             </div>
             <div className="flex justify-between text-sm mt-1">
                <span className="text-gray-500">

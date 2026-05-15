@@ -48,24 +48,24 @@ export default function DashboardClientWrapper({
   }, [router]);
 
   return (
-    <div className="flex flex-col gap-3">
-      <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
-        <p className="text-sm font-medium text-blue-700">ระบบคลังบริษัท</p>
+    <div className="flex flex-col gap-4">
+      <div className="rounded-lg border border-blue-100 bg-blue-50 px-5 py-4">
+        <p className="text-sm font-semibold text-blue-700">ระบบคลังวัสดุ</p>
         <h1 className="mt-1 text-xl font-semibold text-gray-950">
-          จัดการอุปกรณ์และวัสดุก่อสร้าง
+          ขอเข้าคลังและของออกคลัง
         </h1>
-        <p className="mt-1 text-sm text-gray-600">
-          ติดตามของคงเหลือ รายการรับเข้า และวัสดุที่ใกล้หมดสำหรับงานก่อสร้าง
+        <p className="mt-1 max-w-3xl text-sm leading-6 text-gray-600">
+          ติดตามจำนวนคงเหลือ รายการวัสดุ และวัสดุที่ใกล้หมด
         </p>
       </div>
 
-      <div className="grid gap-3 xl:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
-        <div className="flex flex-col gap-3">
-          <div className="grid gap-3 lg:grid-cols-2">
+      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,2fr)_minmax(360px,1fr)]">
+        <div className="grid min-w-0 gap-4">
+          <div className="grid gap-4 lg:grid-cols-2">
             <InventorySummary data={data.inventory} />
             <ProductSummary data={data.products} />
           </div>
-          <div className="grid gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(320px,1fr)]">
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(360px,1fr)]">
             <PurchaseOverview data={data.purchase} />
             <OrderSummaryChart data={data.charts} />
           </div>
