@@ -1,4 +1,4 @@
-import { getProductById, getProductStockStats } from "@/lib/actions/products";
+import { getProductById } from "@/lib/actions/products";
 import ProductDetailView from "@/components/features/product/ProductDetailView";
 import { redirect } from "next/navigation";
 
@@ -14,7 +14,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     return redirect("/inventory");
   }
 
-  const stockStats = await getProductStockStats(product.id as number);
+  const stockStats = { pendingStock: 0, shippedStock: 0 };
 
   return <ProductDetailView product={product} stockStats={stockStats} />;
 }

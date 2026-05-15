@@ -379,6 +379,53 @@ export async function getTotalInventoryValue() {
   return { totalQuantity };
 }
 
+export async function getInventoryOverviewStats() {
+  const supabase = await createClientServer();
+  const { data, error } = await supabase
+    .from("products")
+    .select("amount_stock, product_category");
+
+  if (error) {
+    if (isMissingSchemaTableError(error)) return null;
+    console.error("Error fetching inventory overview stats:", error.message);
+    return {
+      totalCategories: 0,
+      totalProducts: 0,
+      totalQuantity: 0,
+      lowStockCount: 0,
+      noStockCount: 0,
+    };
+  }
+
+  const categories = new Set<string>();
+  let totalQuantity = 0;
+  let lowStockCount = 0;
+  let noStockCount = 0;
+
+  data.forEach((product) => {
+    const stock = Number(product.amount_stock || 0);
+    totalQuantity += stock;
+
+    if (product.product_category) {
+      categories.add(product.product_category);
+    }
+
+    if (stock === 0) {
+      noStockCount += 1;
+    } else if (stock < LOW_STOCK_THRESHOLD) {
+      lowStockCount += 1;
+    }
+  });
+
+  return {
+    totalCategories: categories.size,
+    totalProducts: data.length,
+    totalQuantity,
+    lowStockCount,
+    noStockCount,
+  };
+}
+
 export async function getProductById(id: string): Promise<Product | null> {
   const numericId = parseInt(id, 10);
 

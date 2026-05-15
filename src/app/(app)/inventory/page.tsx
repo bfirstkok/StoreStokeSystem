@@ -1,18 +1,17 @@
 import {
-  getTotalProducts,
-  getTotalCategoryProducts,
-  getTotalInventoryValue,
-  getTotalLowStockProducts,
-  isInventorySchemaReady,
+  getInventoryOverviewStats,
 } from "@/lib/actions/products";
 import { getAllSuppliers } from "@/lib/actions/suppliers";
 import InventoryClientWrapper from "@/components/features/inventory/InventoryClientWrapper";
 import OverallInventory from "@/components/features/inventory/OverallInventory";
 
 export default async function InventoryPage() {
-  const schemaReady = await isInventorySchemaReady();
+  const [stats, suppliers] = await Promise.all([
+    getInventoryOverviewStats(),
+    getAllSuppliers(),
+  ]);
 
-  if (!schemaReady) {
+  if (!stats) {
     return (
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-5 text-amber-950">
         <p className="text-sm font-semibold">ยังไม่ได้ตั้งค่าฐานข้อมูล</p>
@@ -28,31 +27,14 @@ export default async function InventoryPage() {
     );
   }
 
-  const [totalResult, categoryResult, valueResult, stockResult, suppliers] =
-    await Promise.all([
-      getTotalProducts(),
-      getTotalCategoryProducts(),
-      getTotalInventoryValue(),
-      getTotalLowStockProducts(),
-      getAllSuppliers(),
-    ]);
-
-  const data = {
-    totalCategories: categoryResult?.totalCategories ?? 0,
-    totalProducts: totalResult?.count ?? 0,
-    totalValue: valueResult?.totalQuantity ?? 0,
-    lowStockCount: stockResult?.lowStockCount ?? 0,
-    noStockCount: stockResult?.noStockCount ?? 0,
-  };
-
   return (
     <div className="flex flex-col gap-3">
       <OverallInventory
-        totalCategories={data.totalCategories}
-        totalProducts={data.totalProducts}
-        totalQuantity={data.totalValue}
-        lowStockCount={data.lowStockCount}
-        noStockCount={data.noStockCount}
+        totalCategories={stats.totalCategories}
+        totalProducts={stats.totalProducts}
+        totalQuantity={stats.totalQuantity}
+        lowStockCount={stats.lowStockCount}
+        noStockCount={stats.noStockCount}
       />
       <InventoryClientWrapper suppliers={suppliers}/>
     </div>
