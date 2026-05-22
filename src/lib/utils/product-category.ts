@@ -3,6 +3,7 @@ const PRODUCT_CATEGORY_LABELS: Record<string, string> = {
   tools: "เครื่องมือช่าง",
   electrical: "อุปกรณ์ไฟฟ้า",
   plumbing: "อุปกรณ์ประปา",
+  sanitary: "สุขาภิบาล",
   "paint-chemicals": "สีและเคมีภัณฑ์",
   safety: "อุปกรณ์ความปลอดภัย",
   consumables: "วัสดุสิ้นเปลือง",

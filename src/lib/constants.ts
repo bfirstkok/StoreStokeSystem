@@ -82,6 +82,7 @@ export const PRODUCT_CATEGORIES = [
   { label: "เครื่องมือช่าง", value: "tools" },
   { label: "อุปกรณ์ไฟฟ้า", value: "electrical" },
   { label: "อุปกรณ์ประปา", value: "plumbing" },
+  { label: "สุขาภิบาล", value: "sanitary" },
   { label: "สีและเคมีภัณฑ์", value: "paint-chemicals" },
   { label: "อุปกรณ์ความปลอดภัย", value: "safety" },
   { label: "วัสดุสิ้นเปลือง", value: "consumables" },
