@@ -54,7 +54,7 @@ export default function OrderSummaryChart({ data }: { data: ChartData[] }) {
             <Line
               type="monotone"
               dataKey="ordered"
-              name="ขอเข้าคลัง"
+              name="เพิ่มเข้าคลัง"
               stroke="#F59E0B"
               strokeWidth={3}
               dot={showDots ? { r: 4, strokeWidth: 2 } : false}

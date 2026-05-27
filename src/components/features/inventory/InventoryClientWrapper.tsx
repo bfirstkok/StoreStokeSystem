@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import AddProduct from "@/components/features/inventory/AddProduct";
+import ImportProducts from "@/components/features/inventory/ImportProducts";
 import ProductTable from "@/components/features/inventory/ProductTable";
 import FilterDropdown, { DropdownOption } from "@/components/ui/FilterDropdown";
 import { FilterIcon } from "@/components/icons/FilterIcon";
@@ -58,6 +59,7 @@ export default function InventoryClientWrapper({
         <h1 className="text-lg font-semibold tracking-wide text-gray-900">สินค้า</h1>
         <div className="flex flex-wrap gap-3 tracking-wide">
           <AddProduct suppliers={suppliers} onOrderChange={triggerRefresh} />
+          <ImportProducts suppliers={suppliers} onImportComplete={triggerRefresh} />
           <FilterDropdown
             label="ตัวกรอง"
             icon={<FilterIcon className="w-4 h-4 text-gray-600" />}

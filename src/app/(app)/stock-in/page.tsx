@@ -1,8 +1,5 @@
-import StockMovementClient from "@/components/features/stock/StockMovementClient";
-import { getAllProductsForSelect } from "@/lib/actions/products";
+import { redirect } from "next/navigation";
 
 export default async function StockInPage() {
-  const products = await getAllProductsForSelect();
-
-  return <StockMovementClient products={products} movementType="in" />;
+  redirect("/inventory");
 }

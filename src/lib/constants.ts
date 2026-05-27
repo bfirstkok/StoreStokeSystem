@@ -32,12 +32,6 @@ export const MAIN_NAV_LINKS: NavLink[] = [
     icon: InventoryIcon,
   },
   {
-    href: "/stock-in",
-    label: "ขอเข้าคลัง",
-    description: "เพิ่มจำนวนวัสดุเข้าคลัง",
-    icon: OrdersIcon,
-  },
-  {
     href: "/stock-out",
     label: "ของออกคลัง",
     description: "ตัดจำนวนวัสดุออกจากคลัง",
@@ -84,6 +78,7 @@ export const PRODUCT_CATEGORIES = [
   { label: "อุปกรณ์ประปา", value: "plumbing" },
   { label: "สุขาภิบาล", value: "sanitary" },
   { label: "สีและเคมีภัณฑ์", value: "paint-chemicals" },
+  { label: "ปรับอากาศ", value: "air-conditioning" },
   { label: "อุปกรณ์ความปลอดภัย", value: "safety" },
   { label: "วัสดุสิ้นเปลือง", value: "consumables" },
 ];

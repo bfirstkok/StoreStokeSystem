@@ -5,6 +5,7 @@ const PRODUCT_CATEGORY_LABELS: Record<string, string> = {
   plumbing: "อุปกรณ์ประปา",
   sanitary: "สุขาภิบาล",
   "paint-chemicals": "สีและเคมีภัณฑ์",
+  "air-conditioning": "ปรับอากาศ",
   safety: "อุปกรณ์ความปลอดภัย",
   consumables: "วัสดุสิ้นเปลือง",
 };

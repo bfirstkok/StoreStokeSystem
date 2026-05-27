@@ -1,6 +1,8 @@
 import StockMovementClient from "@/components/features/stock/StockMovementClient";
 import { getAllProductsForSelect } from "@/lib/actions/products";
 
+export const dynamic = "force-dynamic";
+
 export default async function StockOutPage() {
   const products = await getAllProductsForSelect();
 

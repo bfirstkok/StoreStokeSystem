@@ -4,8 +4,17 @@ import { createClientServer } from "@/lib/supabase/server";
 import { Product, FormState } from "@/lib/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { LOW_STOCK_THRESHOLD } from "@/lib/constants";
+import { LOW_STOCK_THRESHOLD, PRODUCT_CATEGORIES } from "@/lib/constants";
 import { isMissingSchemaTableError } from "@/lib/utils/supabase-errors";
+
+type ImportedProductInput = {
+  product_name: string;
+  product_category: string;
+  amount_stock: number;
+  buy_price?: number;
+  sell_price?: number;
+  supplier_id?: number | null;
+};
 
 export async function isInventorySchemaReady() {
   const supabase = await createClientServer();
@@ -166,7 +175,189 @@ export async function insertProduct(
   revalidatePath("/dashboard");
   revalidatePath("/inventory");
   revalidatePath("/history");
-  return { success: true, message: "เพิ่มวัสดุเรียบร้อยแล้ว" };
+  return {
+    success: true,
+    message:
+      amount_stock > 0
+        ? "เพิ่มวัสดุและบันทึกจำนวนเข้าคลังเรียบร้อยแล้ว"
+        : "เพิ่มวัสดุเรียบร้อยแล้ว",
+  };
+}
+
+export async function importProductsFromExcel(
+  previousState: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const supabase = await createClientServer();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { success: false, message: "กรุณาเข้าสู่ระบบก่อนนำเข้าข้อมูล" };
+  }
+
+  const { error: profileError } = await supabase.from("users").upsert(
+    {
+      id: user.id,
+      email: user.email,
+      name:
+        (user.user_metadata?.display_name as string | undefined) ||
+        (user.user_metadata?.name as string | undefined) ||
+        user.email?.split("@")[0] ||
+        "User",
+    },
+    { onConflict: "id" }
+  );
+
+  if (profileError) {
+    return {
+      success: false,
+      message: `เตรียมข้อมูลผู้ใช้ไม่สำเร็จ: ${profileError.message}`,
+    };
+  }
+
+  const productsJson = formData.get("products_json");
+  if (typeof productsJson !== "string" || !productsJson.trim()) {
+    return { success: false, message: "ไม่พบข้อมูลวัสดุสำหรับนำเข้า" };
+  }
+
+  let parsedProducts: ImportedProductInput[];
+  try {
+    parsedProducts = JSON.parse(productsJson) as ImportedProductInput[];
+  } catch {
+    return { success: false, message: "อ่านข้อมูลจากไฟล์ไม่สำเร็จ" };
+  }
+
+  if (!Array.isArray(parsedProducts) || parsedProducts.length === 0) {
+    return { success: false, message: "ไม่มีรายการที่พร้อมนำเข้า" };
+  }
+
+  if (parsedProducts.length > 500) {
+    return {
+      success: false,
+      message: "นำเข้าได้สูงสุดครั้งละ 500 รายการ",
+    };
+  }
+
+  const allowedCategories = new Set(
+    PRODUCT_CATEGORIES.map((category) => category.value)
+  );
+
+  let rows;
+  try {
+    rows = parsedProducts.map((product, index) => {
+      const product_name = String(product.product_name ?? "").trim();
+      const product_category = String(product.product_category ?? "").trim();
+      const amount_stock = Number(product.amount_stock);
+      const buy_price = Number(product.buy_price ?? 0);
+      const sell_price = Number(product.sell_price ?? 0);
+      const supplier_id =
+        product.supplier_id === null || product.supplier_id === undefined
+          ? null
+          : Number(product.supplier_id);
+
+      if (!product_name) {
+        throw new Error(`แถวที่ ${index + 2}: กรุณาระบุชื่อวัสดุ`);
+      }
+
+      if (!allowedCategories.has(product_category)) {
+        throw new Error(`แถวที่ ${index + 2}: หมวดหมู่ไม่ถูกต้อง`);
+      }
+
+      if (
+        !Number.isInteger(amount_stock) ||
+        amount_stock < 0 ||
+        Number.isNaN(buy_price) ||
+        buy_price < 0 ||
+        Number.isNaN(sell_price) ||
+        sell_price < 0 ||
+        (supplier_id !== null &&
+          (!Number.isInteger(supplier_id) || supplier_id <= 0))
+      ) {
+        throw new Error(`แถวที่ ${index + 2}: รูปแบบตัวเลขไม่ถูกต้อง`);
+      }
+
+      return {
+        product_name,
+        product_type: product_category,
+        product_category,
+        amount_stock,
+        buy_price,
+        sell_price,
+        product_image: "",
+        supplier_id,
+        user_id: user.id,
+      };
+    });
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "ข้อมูลนำเข้าไม่ถูกต้อง",
+    };
+  }
+
+  let insertedProducts: { id: number; amount_stock: number }[] | null = null;
+  try {
+    const { data, error } = await supabase
+      .from("products")
+      .insert(rows)
+      .select("id, amount_stock");
+
+    if (error) {
+      console.error("Failed to import products:", error.message);
+      return { success: false, message: `นำเข้าวัสดุไม่สำเร็จ: ${error.message}` };
+    }
+
+    insertedProducts = data;
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "นำเข้าวัสดุไม่สำเร็จ",
+    };
+  }
+
+  const stockMovements = (insertedProducts ?? [])
+    .filter((product) => Number(product.amount_stock) > 0)
+    .map((product) => ({
+      product_id: product.id,
+      user_id: user.id,
+      movement_type: "in",
+      quantity: Number(product.amount_stock),
+      note: "นำเข้าจาก Excel",
+    }));
+
+  if (stockMovements.length > 0) {
+    const { error: movementError } = await supabase
+      .from("stock_movements")
+      .insert(stockMovements);
+
+    if (movementError) {
+      console.error("Error recording imported stock movements:", movementError.message);
+
+      revalidatePath("/dashboard");
+      revalidatePath("/inventory");
+      revalidatePath("/history");
+
+      return {
+        success: true,
+        message: isMissingSchemaTableError(movementError)
+          ? `นำเข้า ${rows.length} รายการแล้ว แต่ยังไม่มีตารางประวัติ stock_movements ใน Supabase`
+          : `นำเข้า ${rows.length} รายการแล้ว แต่บันทึกประวัติไม่สำเร็จ: ${movementError.message}`,
+      };
+    }
+  }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/inventory");
+  revalidatePath("/history");
+
+  return {
+    success: true,
+    message: `นำเข้าวัสดุ ${rows.length} รายการ และบันทึกจำนวนเข้าคลังเรียบร้อยแล้ว`,
+  };
 }
 
 export async function updateProduct(
@@ -546,20 +737,12 @@ export async function getPaginatedProductsByUser(
 
 export async function getAllProductsForSelect() {
   const supabase = await createClientServer();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    return [];
-  }
 
   const { data, error } = await supabase
     .from("products")
     .select(
       "id, product_name, product_type, product_category, buy_price, sell_price, amount_stock, supplier_id"
     )
-    .eq("user_id", user.id)
     .order("product_name");
 
   if (error) {
@@ -641,7 +824,6 @@ export async function adjustProductStock(
 
   revalidatePath("/dashboard");
   revalidatePath("/inventory");
-  revalidatePath("/stock-in");
   revalidatePath("/stock-out");
   revalidatePath("/history");
 
@@ -665,7 +847,7 @@ export async function adjustProductStock(
     success: true,
     message:
       movementType === "in"
-        ? "บันทึกขอเข้าคลังแล้ว"
+        ? "บันทึกเพิ่มเข้าคลังแล้ว"
         : "บันทึกของออกคลังแล้ว",
   };
 }
