@@ -80,5 +80,7 @@ export const PRODUCT_CATEGORIES = [
   { label: "สีและเคมีภัณฑ์", value: "paint-chemicals" },
   { label: "ปรับอากาศ", value: "air-conditioning" },
   { label: "อุปกรณ์ความปลอดภัย", value: "safety" },
+  { label: "อุปกรณ์ทำความสะอาด", value: "cleaning-supplies" },
+  { label: "อุปกรณ์ยกของ/ขนย้าย", value: "lifting-moving" },
   { label: "วัสดุสิ้นเปลือง", value: "consumables" },
 ];

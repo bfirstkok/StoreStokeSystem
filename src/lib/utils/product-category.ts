@@ -7,6 +7,8 @@ const PRODUCT_CATEGORY_LABELS: Record<string, string> = {
   "paint-chemicals": "สีและเคมีภัณฑ์",
   "air-conditioning": "ปรับอากาศ",
   safety: "อุปกรณ์ความปลอดภัย",
+  "cleaning-supplies": "อุปกรณ์ทำความสะอาด",
+  "lifting-moving": "อุปกรณ์ยกของ/ขนย้าย",
   consumables: "วัสดุสิ้นเปลือง",
 };
 
