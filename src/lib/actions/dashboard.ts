@@ -4,10 +4,9 @@ import { createClientServer } from "@/lib/supabase/server";
 import { ChartData } from "@/lib/types";
 import { LOW_STOCK_THRESHOLD } from "@/lib/constants";
 
-type OrderRow = {
-  id: number;
-  total_cost: number | null;
-  status: string | null;
+type StockMovementRow = {
+  movement_type: "in" | "out" | null;
+  quantity: number | null;
   created_at: string | null;
 };
 
@@ -84,22 +83,21 @@ function getBucketKey(dateValue: string | null, period: string) {
   return date.toISOString().slice(0, 10);
 }
 
-function buildChartData(
-  period: string,
-  orders: OrderRow[]
-): ChartData[] {
+function buildChartData(period: string, movements: StockMovementRow[]): ChartData[] {
   const buckets = getChartBuckets(period);
   const bucketMap = new Map(buckets.map((bucket) => [bucket.key, bucket]));
 
-  orders.forEach((order) => {
-    const key = getBucketKey(order.created_at, period);
+  movements.forEach((movement) => {
+    const key = getBucketKey(movement.created_at, period);
     const bucket = key ? bucketMap.get(key) : null;
     if (!bucket) return;
 
-    bucket.purchase += Number(order.total_cost || 0);
-    bucket.ordered += 1;
-    if (order.status === "Completed") {
-      bucket.delivered += 1;
+    const quantity = Number(movement.quantity || 0);
+
+    if (movement.movement_type === "in") {
+      bucket.ordered += quantity;
+    } else if (movement.movement_type === "out") {
+      bucket.delivered += quantity;
     }
   });
 
@@ -140,7 +138,19 @@ export async function getDashboardStats(period: string = "monthly") {
         image: p.product_image,
       })) || [];
 
-  const chartData = buildChartData(period, []);
+  const { data: movementsData, error: movementsError } = await supabase
+    .from("stock_movements")
+    .select("movement_type, quantity, created_at")
+    .eq("user_id", user.id);
+
+  if (movementsError) {
+    console.error("Error fetching stock movements for dashboard:", movementsError.message);
+  }
+
+  const chartData = buildChartData(
+    period,
+    (movementsData ?? []) as StockMovementRow[]
+  );
 
   return {
     sales: {

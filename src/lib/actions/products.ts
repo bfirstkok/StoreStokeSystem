@@ -18,6 +18,10 @@ type ImportedProductInput = {
 
 const MAX_IMPORT_PRODUCTS = 1500;
 
+function normalizeImportedProductName(name: string) {
+  return name.replace(/\s+/g, " ").trim().toLowerCase();
+}
+
 export async function isInventorySchemaReady() {
   const supabase = await createClientServer();
   const { error } = await supabase
@@ -250,7 +254,7 @@ export async function importProductsFromExcel(
 
   let rows;
   try {
-    rows = parsedProducts.map((product, index) => {
+    const normalizedRows = parsedProducts.map((product, index) => {
       const product_name = String(product.product_name ?? "").trim();
       const product_category = String(product.product_category ?? "").trim();
       const amount_stock = Number(product.amount_stock);
@@ -294,6 +298,30 @@ export async function importProductsFromExcel(
         user_id: user.id,
       };
     });
+
+    const mergedRows = new Map<string, (typeof normalizedRows)[number]>();
+
+    normalizedRows.forEach((row) => {
+      const key = normalizeImportedProductName(row.product_name);
+      const existing = mergedRows.get(key);
+
+      if (!existing) {
+        mergedRows.set(key, row);
+        return;
+      }
+
+      existing.amount_stock += row.amount_stock;
+      existing.buy_price = existing.buy_price || row.buy_price;
+      existing.sell_price = existing.sell_price || row.sell_price;
+      existing.supplier_id = existing.supplier_id ?? row.supplier_id;
+
+      if (row.amount_stock > existing.amount_stock - row.amount_stock) {
+        existing.product_type = row.product_type;
+        existing.product_category = row.product_category;
+      }
+    });
+
+    rows = Array.from(mergedRows.values());
   } catch (error) {
     return {
       success: false,
@@ -735,6 +763,47 @@ export async function getPaginatedProductsByUser(
   }
 
   return { data, total: count ?? 0 };
+}
+
+export async function getAllInventoryProducts(
+  filter: string | null,
+  searchQuery?: string
+) {
+  const supabase = await createClientServer();
+
+  let query = supabase
+    .from("products")
+    .select(
+      `
+    *,
+    supplier:suppliers (
+      id,
+      supplier_name
+    )
+  `
+    )
+    .order("amount_stock");
+
+  if (filter === "In-Stock") {
+    query = query.gt("amount_stock", 9);
+  } else if (filter === "Low Stock") {
+    query = query.gt("amount_stock", 0).lt("amount_stock", 10);
+  } else if (filter === "Out of Stock") {
+    query = query.eq("amount_stock", 0);
+  }
+
+  if (searchQuery) {
+    query = query.ilike("product_name", `%${searchQuery}%`);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    if (isMissingSchemaTableError(error)) return [];
+    throw error;
+  }
+
+  return data;
 }
 
 export async function getAllProductsForSelect() {

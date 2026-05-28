@@ -63,7 +63,7 @@ export default function OrderSummaryChart({ data }: { data: ChartData[] }) {
             <Line
               type="monotone"
               dataKey="delivered"
-              name="รับเข้าแล้ว"
+              name="ออกคลัง"
               stroke="#0EA5E9"
               strokeWidth={3}
               dot={showDots ? { r: 4, strokeWidth: 2 } : false}

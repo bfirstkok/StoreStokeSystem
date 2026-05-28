@@ -1,29 +1,23 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { getPaginatedProductsByUser } from "@/lib/actions/products";
-import Pagination, { PAGE_SIZE } from "@/components/ui/Pagination";
-import { usePagination } from "@/lib/hooks/use-pagination";
+import { getAllInventoryProducts } from "@/lib/actions/products";
 import ProductRow from "@/components/features/inventory/ProductRow";
 import { Product } from "@/lib/types";
 
 interface ProductTableProps {
   selectedFilter: string | null;
+  searchQuery: string;
   refreshKey: number;
 }
 
 function ProductTableContent({
   selectedFilter,
+  searchQuery,
   refreshKey,
 }: ProductTableProps) {
   const [products, setProducts] = useState<Product[]>([]);
-  const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
-  const { currentPage, handlePageChange } = usePagination();
-
-  const searchParams = useSearchParams();
-  const searchQuery = searchParams.get("search") || "";
 
   useEffect(() => {
     let isMounted = true;
@@ -31,15 +25,12 @@ function ProductTableContent({
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const res = await getPaginatedProductsByUser(
-          currentPage,
-          PAGE_SIZE,
+        const data = await getAllInventoryProducts(
           selectedFilter,
           searchQuery
         );
         if (!isMounted) return;
-        setProducts(res.data);
-        setTotalPages(Math.max(1, Math.ceil(res.total / PAGE_SIZE)));
+        setProducts(data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -54,7 +45,7 @@ function ProductTableContent({
     return () => {
       isMounted = false;
     };
-  }, [currentPage, selectedFilter, refreshKey, searchQuery]);
+  }, [selectedFilter, refreshKey, searchQuery]);
 
   return (
     <div className="pt-2 overflow-hidden">
@@ -105,11 +96,11 @@ function ProductTableContent({
           </tbody>
         </table>
       </div>
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
+      {!isLoading && products.length > 0 ? (
+        <p className="border-t border-gray-100 px-2 py-4 text-sm text-gray-500 md:px-4">
+          แสดงทั้งหมด {products.length} รายการ
+        </p>
+      ) : null}
     </div>
   );
 }

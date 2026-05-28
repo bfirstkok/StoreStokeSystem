@@ -26,6 +26,7 @@ export default function InventoryClientWrapper({
   suppliers: SupplierOption[];
 }) {
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
 
@@ -58,6 +59,13 @@ export default function InventoryClientWrapper({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="text-lg font-semibold tracking-wide text-gray-900">สินค้า</h1>
         <div className="flex flex-wrap gap-3 tracking-wide">
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="ค้นหาในคลังวัสดุ"
+            className="h-10 min-w-[220px] rounded-md border border-gray-300 px-3 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+          />
           <AddProduct suppliers={suppliers} onOrderChange={triggerRefresh} />
           <ImportProducts suppliers={suppliers} onImportComplete={triggerRefresh} />
           <FilterDropdown
@@ -70,6 +78,7 @@ export default function InventoryClientWrapper({
       </div>
       <ProductTable
         selectedFilter={selectedFilter}
+        searchQuery={searchQuery}
         refreshKey={refreshKey}
       />
     </div>
