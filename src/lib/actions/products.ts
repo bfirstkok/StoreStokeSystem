@@ -16,6 +16,8 @@ type ImportedProductInput = {
   supplier_id?: number | null;
 };
 
+const MAX_IMPORT_PRODUCTS = 1500;
+
 export async function isInventorySchemaReady() {
   const supabase = await createClientServer();
   const { error } = await supabase
@@ -235,10 +237,10 @@ export async function importProductsFromExcel(
     return { success: false, message: "ไม่มีรายการที่พร้อมนำเข้า" };
   }
 
-  if (parsedProducts.length > 500) {
+  if (parsedProducts.length > MAX_IMPORT_PRODUCTS) {
     return {
       success: false,
-      message: "นำเข้าได้สูงสุดครั้งละ 500 รายการ",
+      message: `นำเข้าได้สูงสุดครั้งละ ${MAX_IMPORT_PRODUCTS} รายการ`,
     };
   }
 
