@@ -15,6 +15,10 @@ type StockMovementRow = {
     name: string | null;
     email: string | null;
   } | null;
+  account_user: {
+    name: string | null;
+    role: string | null;
+  } | null;
   product?: {
     id: number;
     product_name: string | null;
@@ -23,14 +27,20 @@ type StockMovementRow = {
 };
 
 function mapStockMovement(item: StockMovementRow): HistoryItem {
+  const actorName =
+    item.account_user?.name ||
+    item.actor?.name ||
+    item.actor?.email ||
+    "ไม่ทราบผู้ทำรายการ";
+
   return {
     id: `STK-${item.id}`,
     date: item.created_at,
     type: item.movement_type,
     quantity: item.quantity,
     note: item.note,
-    actor_name: item.actor?.name || item.actor?.email || "ไม่ทราบผู้ทำรายการ",
-    actor_email: item.actor?.email ?? null,
+    actor_name: actorName,
+    actor_email: item.account_user?.name ? null : item.actor?.email ?? null,
   };
 }
 
@@ -48,6 +58,7 @@ export async function getProductHistory(
       quantity,
       note,
       created_at,
+      account_user:account_users ( name, role ),
       actor:users ( name, email )
     `
     )
@@ -78,6 +89,7 @@ export async function getStockMovementHistory(
       quantity,
       note,
       created_at,
+      account_user:account_users ( name, role ),
       actor:users ( name, email ),
       product:products ( id, product_name, product_category )
     `

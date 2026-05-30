@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { LOW_STOCK_THRESHOLD, PRODUCT_CATEGORIES } from "@/lib/constants";
 import { isMissingSchemaTableError } from "@/lib/utils/supabase-errors";
+import { getActiveAccountUserId } from "@/lib/actions/account-users";
 
 type ImportedProductInput = {
   product_name: string;
@@ -154,9 +155,11 @@ export async function insertProduct(
   }
 
   if (insertedProduct && amount_stock > 0) {
+    const accountUserId = await getActiveAccountUserId();
     const { error: movementError } = await supabase.from("stock_movements").insert({
       product_id: insertedProduct.id,
       user_id: user.id,
+      account_user_id: accountUserId,
       movement_type: "in",
       quantity: amount_stock,
       note: "จำนวนตั้งต้นตอนเพิ่มวัสดุ",
@@ -349,11 +352,13 @@ export async function importProductsFromExcel(
     };
   }
 
+  const accountUserId = await getActiveAccountUserId();
   const stockMovements = (insertedProducts ?? [])
     .filter((product) => Number(product.amount_stock) > 0)
     .map((product) => ({
       product_id: product.id,
       user_id: user.id,
+      account_user_id: accountUserId,
       movement_type: "in",
       quantity: Number(product.amount_stock),
       note: "นำเข้าจาก Excel",
@@ -883,11 +888,13 @@ export async function adjustProductStock(
     return { success: false, message: updateError.message };
   }
 
+  const accountUserId = await getActiveAccountUserId();
   const { error: movementError } = await supabase
     .from("stock_movements")
     .insert({
       product_id: productId,
       user_id: user.id,
+      account_user_id: accountUserId,
       movement_type: movementType,
       quantity,
       note: note || null,

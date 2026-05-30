@@ -42,5 +42,19 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  if (
+    user &&
+    !request.cookies.get("active_account_user_id") &&
+    !request.nextUrl.pathname.startsWith("/select-user") &&
+    !request.nextUrl.pathname.startsWith("/login") &&
+    !request.nextUrl.pathname.startsWith("/signup") &&
+    !request.nextUrl.pathname.startsWith("/forgot-password") &&
+    !request.nextUrl.pathname.startsWith("/update-password")
+  ) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/select-user";
+    return NextResponse.redirect(url);
+  }
+
   return response;
 }

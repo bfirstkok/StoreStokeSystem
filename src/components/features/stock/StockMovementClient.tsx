@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { adjustProductStock } from "@/lib/actions/products";
 import { Button } from "@/components/ui/Button";
 import { FormState, ProductOption } from "@/lib/types";
+import { LOW_STOCK_THRESHOLD } from "@/lib/constants";
 import { formatProductCategory } from "@/lib/utils/product-category";
 
 const initialState: FormState = { success: false, message: "" };
@@ -22,6 +23,10 @@ export default function StockMovementClient({
   const formRef = useRef<HTMLFormElement>(null);
   const processedStateRef = useRef(initialState);
   const [selectedProductId, setSelectedProductId] = useState("");
+  const [stockOutSearchInput, setStockOutSearchInput] = useState("");
+  const [stockOutSearchQuery, setStockOutSearchQuery] = useState("");
+  const [stockOutCategoryFilter, setStockOutCategoryFilter] = useState("all");
+  const [stockOutStockFilter, setStockOutStockFilter] = useState("all");
   const [state, formAction, isPending] = useActionState(
     adjustProductStock,
     initialState
@@ -37,6 +42,54 @@ export default function StockMovementClient({
   const description = isStockIn
     ? "เพิ่มจำนวนวัสดุเข้าคลังจากรายการที่ได้รับ"
     : "ตัดจำนวนวัสดุออกจากคลังสำหรับการเบิกใช้งาน";
+
+  const stockOutCategoryOptions = useMemo(() => {
+    const categories = new Map<string, string>();
+
+    products.forEach((product) => {
+      if (!product.product_category) {
+        return;
+      }
+
+      categories.set(
+        product.product_category,
+        formatProductCategory(product.product_category)
+      );
+    });
+
+    return Array.from(categories.entries()).sort(([, labelA], [, labelB]) =>
+      labelA.localeCompare(labelB)
+    );
+  }, [products]);
+
+  const filteredStockOutProducts = useMemo(() => {
+    const query = stockOutSearchQuery.trim().toLowerCase();
+
+    return products.filter((product) => {
+      const category = formatProductCategory(product.product_category);
+      const stock = Number(product.amount_stock || 0);
+      const matchesSearch =
+        !query ||
+        `${product.product_name} ${category}`.toLowerCase().includes(query);
+      const matchesCategory =
+        stockOutCategoryFilter === "all" ||
+        product.product_category === stockOutCategoryFilter;
+      const matchesStock =
+        stockOutStockFilter === "all" ||
+        (stockOutStockFilter === "available" && stock >= LOW_STOCK_THRESHOLD) ||
+        (stockOutStockFilter === "low" &&
+          stock > 0 &&
+          stock < LOW_STOCK_THRESHOLD) ||
+        (stockOutStockFilter === "out" && stock <= 0);
+
+      return matchesSearch && matchesCategory && matchesStock;
+    });
+  }, [
+    products,
+    stockOutCategoryFilter,
+    stockOutSearchQuery,
+    stockOutStockFilter,
+  ]);
 
   useEffect(() => {
     if (state !== processedStateRef.current && state.message) {
@@ -75,6 +128,62 @@ export default function StockMovementClient({
               ยังไม่มีวัสดุให้เบิกออก ให้เพิ่มวัสดุจากหน้าคลังวัสดุก่อน
             </p>
           ) : (
+            <>
+            <form
+              className="mb-4 grid gap-2 lg:grid-cols-[minmax(220px,1fr)_220px_180px_auto]"
+              onSubmit={(event) => {
+                event.preventDefault();
+                setStockOutSearchQuery(stockOutSearchInput);
+              }}
+            >
+              <input
+                type="search"
+                value={stockOutSearchInput}
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setStockOutSearchInput(value);
+
+                  if (!value.trim()) {
+                    setStockOutSearchQuery("");
+                  }
+                }}
+                className="h-10 min-w-0 flex-1 rounded-md border border-gray-300 px-3 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                placeholder="ค้นหาสินค้าออก"
+              />
+              <select
+                value={stockOutCategoryFilter}
+                onChange={(event) =>
+                  setStockOutCategoryFilter(event.target.value)
+                }
+                className="h-10 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                aria-label="กรองหมวดหมู่"
+              >
+                <option value="all">ทุกหมวดหมู่</option>
+                {stockOutCategoryOptions.map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={stockOutStockFilter}
+                onChange={(event) => setStockOutStockFilter(event.target.value)}
+                className="h-10 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
+                aria-label="กรองสถานะสต็อก"
+              >
+                <option value="all">ทุกสถานะ</option>
+                <option value="available">พร้อมเบิก</option>
+                <option value="low">ใกล้หมด</option>
+                <option value="out">หมดสต็อก</option>
+              </select>
+              <button
+                type="submit"
+                className="h-10 rounded-md bg-blue-600 px-4 text-sm font-medium text-white hover:bg-blue-700"
+              >
+                ค้นหา
+              </button>
+            </form>
+
             <div className="overflow-x-auto">
               <table className="min-w-full text-left text-sm">
                 <thead className="border-b border-gray-200 text-gray-600">
@@ -92,7 +201,7 @@ export default function StockMovementClient({
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((product) => {
+                  {filteredStockOutProducts.map((product) => {
                     const stock = Number(product.amount_stock || 0);
                     const isOutOfStock = stock <= 0;
 
@@ -164,9 +273,20 @@ export default function StockMovementClient({
                       </tr>
                     );
                   })}
+                  {filteredStockOutProducts.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={6}
+                        className="px-3 py-8 text-center text-sm text-gray-500"
+                      >
+                        ไม่พบรายการวัสดุที่ค้นหา
+                      </td>
+                    </tr>
+                  ) : null}
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </section>
       </div>

@@ -9,6 +9,8 @@ import { User } from "@/lib/types";
 import { getProfile } from "@/lib/actions/profile";
 import { getLowStockNotifications } from "@/lib/actions/notifications";
 import { StockAlert } from "@/lib/types";
+import { getActiveAccountUser } from "@/lib/actions/account-users";
+import type { AccountUser } from "@/lib/actions/account-users";
 
 interface TopbarProps {
   onMenuClick: () => void;
@@ -16,18 +18,22 @@ interface TopbarProps {
 
 export default function Topbar({ onMenuClick }: TopbarProps) {
   const [user, setUser] = useState<User | null>(null);
+  const [activeAccountUser, setActiveAccountUser] =
+    useState<AccountUser | null>(null);
   const [alerts, setAlerts] = useState<StockAlert[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const [userData, notificationData] = await Promise.all([
+        const [userData, activeUserData, notificationData] = await Promise.all([
           getProfile(),
+          getActiveAccountUser(),
           getLowStockNotifications(),
         ]);
 
         setUser(userData);
+        setActiveAccountUser(activeUserData);
         setAlerts(notificationData);
       } catch (error) {
         console.error("Failed to fetch topbar data:", error);
@@ -51,9 +57,11 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
         </button>
 
         <div className="hidden min-w-[180px] md:block">
-          <p className="text-xs font-medium text-gray-400">ยินดีต้อนรับ</p>
+          <p className="text-xs font-medium text-gray-400">กำลังใช้งานโดย</p>
           <p className="truncate text-sm font-semibold text-gray-800">
-            {loading ? "กำลังโหลดข้อมูล..." : user?.name || "ผู้ใช้งาน"}
+            {loading
+              ? "กำลังโหลดข้อมูล..."
+              : activeAccountUser?.name || user?.name || "ผู้ใช้งาน"}
           </p>
         </div>
 
@@ -63,15 +71,15 @@ export default function Topbar({ onMenuClick }: TopbarProps) {
 
         <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           {loading ? (
-            <div className="h-10 w-10 rounded-full bg-gray-200 animate-pulse" />
+            <div className="h-10 w-10 animate-pulse rounded-full bg-gray-200" />
           ) : (
             <NotificationDropdown alerts={alerts} />
           )}
 
           {loading ? (
-            <div className="h-10 w-10 rounded-full border border-gray-300 bg-gray-200 animate-pulse" />
+            <div className="h-10 w-10 animate-pulse rounded-full border border-gray-300 bg-gray-200" />
           ) : user ? (
-            <UserDropdown user={user} />
+            <UserDropdown user={user} activeAccountUser={activeAccountUser} />
           ) : (
             <div className="h-10 w-10 rounded-full bg-gray-200" />
           )}

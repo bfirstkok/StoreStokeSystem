@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClientServer } from "@/lib/supabase/server";
 import { FormState } from "@/lib/types";
+import { clearSelectedAccountUser } from "@/lib/actions/account-users";
 
 export async function login(
   prevState: { success: string; error: string },
@@ -24,8 +25,9 @@ export async function login(
     return { success: "", error: "Invalid email or password." };
   }
 
+  await clearSelectedAccountUser();
   revalidatePath("/dashboard", "layout");
-  redirect("/dashboard");
+  redirect("/select-user");
 }
 
 export async function signup(
@@ -86,6 +88,7 @@ export async function logout() {
   const supabase = await createClientServer();
 
   await supabase.auth.signOut();
+  await clearSelectedAccountUser();
 
   revalidatePath("/dashboard", "layout");
   redirect("/login");

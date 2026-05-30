@@ -6,10 +6,18 @@ import Link from "next/link";
 import { ProfileIcon } from "@/components/icons";
 import { User } from "@/lib/types";
 import { logout } from "@/lib/actions/auth";
+import type { AccountUser } from "@/lib/actions/account-users";
 
-export default function UserDropdown({ user }: { user: User }) {
+export default function UserDropdown({
+  user,
+  activeAccountUser,
+}: {
+  user: User;
+  activeAccountUser: AccountUser | null;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const displayName = activeAccountUser?.name || user.name;
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -31,14 +39,14 @@ export default function UserDropdown({ user }: { user: User }) {
         {user.profile_picture ? (
           <Image
             src={user.profile_picture}
-            alt={user.name}
+            alt={displayName}
             width={40}
             height={40}
             className="h-full w-full object-cover"
           />
         ) : (
           <span className="text-sm font-bold text-gray-500">
-            {user.name?.charAt(0).toUpperCase() || <ProfileIcon />}
+            {displayName?.charAt(0).toUpperCase() || <ProfileIcon />}
           </span>
         )}
       </button>
@@ -51,22 +59,25 @@ export default function UserDropdown({ user }: { user: User }) {
                 {user.profile_picture ? (
                   <Image
                     src={user.profile_picture}
-                    alt={user.name}
+                    alt={displayName}
                     fill
                     className="object-cover"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-gray-200 text-xl font-bold text-gray-500">
-                    {user.name?.charAt(0).toUpperCase()}
+                    {displayName?.charAt(0).toUpperCase()}
                   </div>
                 )}
               </div>
               <div className="min-w-0">
                 <p className="truncate text-sm font-bold text-gray-900">
-                  {user.name}
+                  {displayName}
                 </p>
-                <p className="truncate text-xs text-gray-500" title={user.email}>
-                  {user.email}
+                <p className="truncate text-xs text-gray-500">
+                  {activeAccountUser?.role || "ผู้ใช้งาน"}
+                </p>
+                <p className="truncate text-xs text-gray-400" title={user.email}>
+                  บัญชีหลัก: {user.email}
                 </p>
               </div>
             </div>
@@ -79,6 +90,13 @@ export default function UserDropdown({ user }: { user: User }) {
               className="rounded-lg px-4 py-2.5 text-left text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
             >
               ตั้งค่าบัญชี
+            </Link>
+            <Link
+              href="/select-user"
+              onClick={() => setIsOpen(false)}
+              className="rounded-lg px-4 py-2.5 text-left text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+            >
+              สลับผู้ใช้
             </Link>
             <button
               onClick={() => logout()}
